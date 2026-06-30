@@ -5,9 +5,5 @@
 			"redirect": "/ko/",
 			"statusCode": 308
 		}
-	],
-	"navigationFallback": {
-		"rewrite": "/404.html",
-		"exclude": ["/_app/*", "/favicon.*", "/robots.txt", "/staticwebapp.config.json"]
-	}
+	]
 }
