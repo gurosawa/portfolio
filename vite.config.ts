@@ -17,7 +17,26 @@ export default defineConfig({
 				pages: 'build',
 				assets: 'build',
 				strict: true
-			})
+			}),
+			csp: {
+				mode: 'hash',
+				directives: {
+					'default-src': ['self'],
+					'base-uri': ['self'],
+					'connect-src': ['self'],
+					'font-src': ['self', 'https://cdn.jsdelivr.net', 'https://fonts.gstatic.com'],
+					'form-action': ['self'],
+					'frame-src': ['none'],
+					'img-src': ['self', 'data:'],
+					'manifest-src': ['self'],
+					'media-src': ['self'],
+					'object-src': ['none'],
+					'script-src': ['self'],
+					'style-src-attr': ['unsafe-inline'],
+					'style-src-elem': ['self', 'https://cdn.jsdelivr.net', 'https://fonts.googleapis.com'],
+					'upgrade-insecure-requests': true
+				}
+			}
 		})
 	],
 	test: {

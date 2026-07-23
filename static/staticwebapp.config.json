@@ -5,5 +5,10 @@
 			"redirect": "/ko/",
 			"statusCode": 301
 		}
-	]
+	],
+	"globalHeaders": {
+		"Content-Security-Policy": "base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests",
+		"Permissions-Policy": "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+		"X-Frame-Options": "DENY"
+	}
 }
