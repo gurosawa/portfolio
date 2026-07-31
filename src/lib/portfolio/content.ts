@@ -125,7 +125,7 @@ const koWorks: WorkItem[] = [
 		title: 'Soram',
 		slug: 'soram',
 		status: 'prototype',
-		surface: '언어 장벽을 허무는 실시간 글로벌 통번역 솔루션.',
+		surface: '언어가 달라도 바로 대화할 수 있는 실시간 통번역 웹앱.',
 		inner: '여행지에서 만난 사람과 말이 안 통해서 만들어버린 웹앱.',
 		tags: ['translation', 'web app', 'product'],
 		externalUrl: 'https://soram.vercel.app/',
@@ -138,22 +138,25 @@ const koWorks: WorkItem[] = [
 		surface: '엔터프라이즈 환경의 무중단 인프라 유지보수와 장애 대응 플레이북 구축 경험.',
 		inner: '새벽 3시 서버 다운의 공포 속에서 안 잘리려고 몰래 수집한 생존형 스킬 모음집.',
 		tags: ['infrastructure', 'troubleshooting', 'operations'],
-		cta: 'Coming soon'
+		externalUrl:
+			'https://brave-hill-0cb321b00.7.azurestaticapps.net/#post/08-cicd-to-gitops-gitlab',
+		cta: 'Open notes'
 	},
 	{
 		title: 'UNPACKING ZKTLS',
 		slug: 'zktls-research',
 		status: 'research',
-		surface: '차세대 프라이버시 보호를 위한 보안 전송 계층과 증명 가능한 신뢰 구조 탐구.',
+		surface: '프라이버시를 지키는 보안 전송 계층과 증명 가능한 신뢰 구조를 탐구합니다.',
 		inner: '멋져 보여서 시작했는데 아직 코드 한 줄 못 짠 완전 쌩초보.',
 		tags: ['privacy', 'security', 'research'],
-		cta: 'Coming soon'
+		externalUrl: 'https://jolly-tree-0eb260f00.7.azurestaticapps.net',
+		cta: 'Open site'
 	},
 	{
 		title: 'AI ON-PREMISE',
 		slug: 'local-ai-ops-notes',
 		status: 'running experiment',
-		surface: '외부 API에 의존하지 않고 로컬 환경에서 AI 에이전트를 구성해본 운영 기록.',
+		surface: '외부 API 없이 로컬 환경에 AI 에이전트를 구성하고 운영해본 기록.',
 		inner:
 			'챗봇 하나 붙여보려던 건데, 어느새 네트워크와 모델 서빙을 보고 있다. AI도 결국 인프라였다.',
 		tags: ['local ai', 'vllm', 'llmops', 'infrastructure'],
@@ -181,7 +184,9 @@ const enWorks: WorkItem[] = [
 			'High-availability infrastructure maintenance and incident-response playbook notes in an enterprise environment.',
 		inner: 'A survival kit quietly assembled under the fear of 3 a.m. server alerts.',
 		tags: ['infrastructure', 'troubleshooting', 'operations'],
-		cta: 'Coming soon'
+		externalUrl:
+			'https://brave-hill-0cb321b00.7.azurestaticapps.net/#post/08-cicd-to-gitops-gitlab',
+		cta: 'Open notes'
 	},
 	{
 		title: 'UNPACKING ZKTLS',
@@ -191,7 +196,8 @@ const enWorks: WorkItem[] = [
 		inner:
 			'I started because it looked cool. I still haven’t written a proper line of code for it.',
 		tags: ['privacy', 'security', 'research'],
-		cta: 'Coming soon'
+		externalUrl: 'https://jolly-tree-0eb260f00.7.azurestaticapps.net',
+		cta: 'Open site'
 	},
 	{
 		title: 'AI ON-PREMISE',
@@ -253,14 +259,14 @@ const content: Record<Locale, HomeContent> = {
 		about: {
 			title: 'DETERMINISTIC SYSTEMS, PROBABILISTIC FUTURES.',
 			surface:
-				'금융권 인프라에서 <span class="text-[#FF5500]">무중단 안정성</span>을 지켰고,\n이제는 AI 접점에서 <span class="text-[#FF5500]">예측 불가능성</span>을 다룹니다.',
+				'금융권 인프라의 <span class="text-[#FF5500]">무중단 운영</span>을 지켰습니다.\n이제는 AI 접점의 <span class="text-[#FF5500]">예측 불가능성</span>을 다룹니다.',
 			inner:
 				'떨어뜨리면 발등 찍히는 정직한 하드웨어가 참 좋았는데,\n요즘은 <span class="text-[#FF5500]">말귀 못 알아듣는 AI</span>한테 일 좀 하라고 사정하는 중입니다.'
 		},
 		workIntro: {
 			title: 'SELECTED COMMITS.',
 			surface:
-				'현재의 <span class="text-[#FF5500]">기술적 관심사</span>와 <span class="text-[#FF5500]">아키텍처적 실험</span>을 대변하는 네 개의 작업물.',
+				'요즘 파고드는 <span class="text-[#FF5500]">기술</span>과 <span class="text-[#FF5500]">아키텍처 실험</span> 네 가지.',
 			inner:
 				'솔직히 제가 지금 인프라맨인지 AI 개발자인지 저도 잘 모르겠습니다.\n하나로 깔끔하게 정리하려다가 포기했고 이미 제 이성 또한 함께 로그아웃한 지 오래입니다.'
 		},

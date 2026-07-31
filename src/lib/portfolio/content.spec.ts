@@ -49,4 +49,11 @@ describe('portfolio content model', () => {
 		expect(work?.slug).toBe('local-ai-ops-notes');
 		expect(work?.status).toBe('running experiment');
 	});
+
+	it('links zkTLS research to the deployed study site', () => {
+		const work = getWork('ko', 'zktls-research');
+
+		expect(work?.externalUrl).toBe('https://jolly-tree-0eb260f00.7.azurestaticapps.net');
+		expect(work?.cta).toBe('Open site');
+	});
 });
