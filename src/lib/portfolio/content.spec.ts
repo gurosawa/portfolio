@@ -53,7 +53,7 @@ describe('portfolio content model', () => {
 	it('links zkTLS research to the deployed study site', () => {
 		const work = getWork('ko', 'zktls-research');
 
-		expect(work?.externalUrl).toBe('https://jolly-tree-0eb260f00.7.azurestaticapps.net');
+		expect(work?.externalUrl).toBe('https://blue-dune-0777d1800.7.azurestaticapps.net/');
 		expect(work?.cta).toBe('Open site');
 	});
 });

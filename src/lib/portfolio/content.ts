@@ -138,8 +138,7 @@ const koWorks: WorkItem[] = [
 		surface: '엔터프라이즈 환경의 무중단 인프라 유지보수와 장애 대응 플레이북 구축 경험.',
 		inner: '새벽 3시 서버 다운의 공포 속에서 안 잘리려고 몰래 수집한 생존형 스킬 모음집.',
 		tags: ['infrastructure', 'troubleshooting', 'operations'],
-		externalUrl:
-			'https://brave-hill-0cb321b00.7.azurestaticapps.net/#post/08-cicd-to-gitops-gitlab',
+		externalUrl: 'https://brave-hill-0cb321b00.7.azurestaticapps.net/#home',
 		cta: 'Open notes'
 	},
 	{
@@ -149,7 +148,7 @@ const koWorks: WorkItem[] = [
 		surface: '프라이버시를 지키는 보안 전송 계층과 증명 가능한 신뢰 구조를 탐구합니다.',
 		inner: '멋져 보여서 시작했는데 아직 코드 한 줄 못 짠 완전 쌩초보.',
 		tags: ['privacy', 'security', 'research'],
-		externalUrl: 'https://jolly-tree-0eb260f00.7.azurestaticapps.net',
+		externalUrl: 'https://blue-dune-0777d1800.7.azurestaticapps.net/',
 		cta: 'Open site'
 	},
 	{
@@ -184,8 +183,7 @@ const enWorks: WorkItem[] = [
 			'High-availability infrastructure maintenance and incident-response playbook notes in an enterprise environment.',
 		inner: 'A survival kit quietly assembled under the fear of 3 a.m. server alerts.',
 		tags: ['infrastructure', 'troubleshooting', 'operations'],
-		externalUrl:
-			'https://brave-hill-0cb321b00.7.azurestaticapps.net/#post/08-cicd-to-gitops-gitlab',
+		externalUrl: 'https://brave-hill-0cb321b00.7.azurestaticapps.net/#home',
 		cta: 'Open notes'
 	},
 	{
@@ -196,7 +194,7 @@ const enWorks: WorkItem[] = [
 		inner:
 			'I started because it looked cool. I still haven’t written a proper line of code for it.',
 		tags: ['privacy', 'security', 'research'],
-		externalUrl: 'https://jolly-tree-0eb260f00.7.azurestaticapps.net',
+		externalUrl: 'https://blue-dune-0777d1800.7.azurestaticapps.net/',
 		cta: 'Open site'
 	},
 	{
