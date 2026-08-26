@@ -18,12 +18,7 @@ describe('portfolio content model', () => {
 
 		expect(ko.works.map((work) => work.slug)).toEqual(workSlugs);
 		expect(en.works.map((work) => work.slug)).toEqual(workSlugs);
-		expect(workSlugs).toEqual([
-			'soram',
-			'infra-troubleshooting',
-			'zktls-research',
-			'local-ai-ops-notes'
-		]);
+		expect(workSlugs).toEqual(['soram', 'systems-notebook', 'local-ai-ops-notes']);
 	});
 
 	it('keeps synthetic terminal copy free of real infrastructure details', () => {
@@ -50,10 +45,13 @@ describe('portfolio content model', () => {
 		expect(work?.status).toBe('running experiment');
 	});
 
-	it('links zkTLS research to the deployed study site', () => {
-		const work = getWork('ko', 'zktls-research');
+	it('merges the operations and zkTLS entries into the local Systems Notebook', () => {
+		const work = getWork('ko', 'systems-notebook');
 
-		expect(work?.externalUrl).toBe('https://blue-dune-0777d1800.7.azurestaticapps.net/');
-		expect(work?.cta).toBe('Open site');
+		expect(work?.externalUrl).toBeUndefined();
+		expect(work?.status).toBe('notebook');
+		expect(work?.tags).toEqual(['security', 'systems', 'operations']);
+		expect(getWork('ko', 'infra-troubleshooting')).toBeUndefined();
+		expect(getWork('ko', 'zktls-research')).toBeUndefined();
 	});
 });

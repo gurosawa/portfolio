@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">TLS 1.3 Handshake와 Record Protocol</title>
+  <desc id="desc">Systems Notebook의 두 번째 zkTLS 글 표지</desc>
+  <defs>
+    <pattern id="grid" width="96" height="96" patternUnits="userSpaceOnUse">
+      <path d="M96 0H0V96" fill="none" stroke="#2d2922" stroke-width="1" opacity=".48"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#0b0b0a"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <path d="M64 64H1136M64 566H1136" stroke="#302c25"/>
+  <text x="64" y="105" fill="#ff5500" font-family="Consolas, monospace" font-size="18" letter-spacing="3">SYSTEMS NOTEBOOK / ZKTLS / 02</text>
+  <text x="64" y="220" fill="#eee5d6" font-family="Arial, Pretendard, sans-serif" font-size="64" font-weight="700">
+    <tspan x="64" dy="0">TLS 1.3 Handshake와</tspan>
+    <tspan x="64" dy="76">Record Protocol</tspan>
+  </text>
+  <text x="66" y="415" fill="#948978" font-family="Arial, Pretendard, sans-serif" font-size="24">HTTPS 연결 보호와 저장된 응답의 증명은 같은 문제가 아니다.</text>
+  <g transform="translate(770 150)" fill="none">
+    <circle cx="24" cy="36" r="12" stroke="#c8bda8"/>
+    <circle cx="310" cy="36" r="12" stroke="#c8bda8"/>
+    <path d="M45 36H286" stroke="#302c25" stroke-width="2"/>
+    <path d="M76 96H272L310 134 272 172H76L38 134Z" stroke="#ff5500" stroke-width="2"/>
+    <path d="M76 208H272" stroke="#302c25" stroke-width="2" stroke-dasharray="7 8"/>
+    <path d="M272 208l-18-10v20Z" fill="#ff5500"/>
+    <text x="110" y="142" fill="#eee5d6" font-family="Consolas, monospace" font-size="20">TLS RECORD</text>
+    <text x="102" y="250" fill="#948978" font-family="Consolas, monospace" font-size="15">CLIENT → SERVER</text>
+  </g>
+  <text x="64" y="544" fill="#c8bda8" font-family="Consolas, monospace" font-size="18">9 ACTS · 10–15분 · /ko/notebook/zktls/tls13</text>
+</svg>

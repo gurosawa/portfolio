@@ -11,6 +11,10 @@
 	let { works, locale }: Props = $props();
 
 	function hrefFor(work: WorkItem) {
+		if (work.destination === 'notebook') {
+			return resolve('/[locale=locale]/notebook', { locale });
+		}
+
 		return (
 			work.externalUrl ??
 			resolve('/[locale=locale]/work/[slug]', {

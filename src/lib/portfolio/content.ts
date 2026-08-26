@@ -21,6 +21,7 @@ export type WorkItem = DualCopy & {
 	status: string;
 	tags: string[];
 	cta: string;
+	destination?: 'notebook';
 	externalUrl?: string;
 };
 
@@ -132,24 +133,16 @@ const koWorks: WorkItem[] = [
 		cta: 'Open demo'
 	},
 	{
-		title: 'ZERO DOWNTIME',
-		slug: 'infra-troubleshooting',
-		status: 'notes',
-		surface: '엔터프라이즈 환경의 무중단 인프라 유지보수와 장애 대응 플레이북 구축 경험.',
-		inner: '새벽 3시 서버 다운의 공포 속에서 안 잘리려고 몰래 수집한 생존형 스킬 모음집.',
-		tags: ['infrastructure', 'troubleshooting', 'operations'],
-		externalUrl: 'https://brave-hill-0cb321b00.7.azurestaticapps.net/#home',
-		cta: 'Open notes'
-	},
-	{
-		title: 'UNPACKING ZKTLS',
-		slug: 'zktls-research',
-		status: 'research',
-		surface: '프라이버시를 지키는 보안 전송 계층과 증명 가능한 신뢰 구조를 탐구합니다.',
-		inner: '멋져 보여서 시작했는데 아직 코드 한 줄 못 짠 완전 쌩초보.',
-		tags: ['privacy', 'security', 'research'],
-		externalUrl: 'https://blue-dune-0777d1800.7.azurestaticapps.net/',
-		cta: 'Open site'
+		title: 'SYSTEMS NOTEBOOK',
+		slug: 'systems-notebook',
+		status: 'notebook',
+		surface:
+			'zkTLS의 데이터 출처 검증부터 운영 현장의 CI/CD 기록까지, 시스템이 어디서 신뢰를 얻고 잃는지 정리한 기술 노트.',
+		inner:
+			'보안과 운영은 다른 문제처럼 보였습니다. 파고들수록 둘 다 어느 경계에서 무엇을 믿을지 정하는 일이었습니다.',
+		tags: ['security', 'systems', 'operations'],
+		destination: 'notebook',
+		cta: '노트 읽기'
 	},
 	{
 		title: 'AI ON-PREMISE',
@@ -176,26 +169,16 @@ const enWorks: WorkItem[] = [
 		cta: 'Open demo'
 	},
 	{
-		title: 'ZERO DOWNTIME',
-		slug: 'infra-troubleshooting',
-		status: 'notes',
+		title: 'SYSTEMS NOTEBOOK',
+		slug: 'systems-notebook',
+		status: 'notebook',
 		surface:
-			'High-availability infrastructure maintenance and incident-response playbook notes in an enterprise environment.',
-		inner: 'A survival kit quietly assembled under the fear of 3 a.m. server alerts.',
-		tags: ['infrastructure', 'troubleshooting', 'operations'],
-		externalUrl: 'https://brave-hill-0cb321b00.7.azurestaticapps.net/#home',
-		cta: 'Open notes'
-	},
-	{
-		title: 'UNPACKING ZKTLS',
-		slug: 'zktls-research',
-		status: 'research',
-		surface: 'Research notes on privacy-preserving transport layers and verifiable trust.',
+			'Technical notes on where systems gain and lose trust, from zkTLS data provenance to CI/CD operations.',
 		inner:
-			'I started because it looked cool. I still haven’t written a proper line of code for it.',
-		tags: ['privacy', 'security', 'research'],
-		externalUrl: 'https://blue-dune-0777d1800.7.azurestaticapps.net/',
-		cta: 'Open site'
+			'Security and operations looked like separate problems. Both kept leading back to the same question: what crosses a boundary, and why should it be trusted?',
+		tags: ['security', 'systems', 'operations'],
+		destination: 'notebook',
+		cta: 'Open notebook'
 	},
 	{
 		title: 'AI ON-PREMISE',
