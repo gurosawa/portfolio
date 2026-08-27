@@ -11,7 +11,7 @@ export const balanceClaimStory = defineStory({
 		canonicalPath: '/ko/notebook/zktls/balance-claim/',
 		publishedAt: '2026-08-26',
 		technicallyReviewedAt: '2026-08-26',
-		readingMinutes: '10–15분'
+		readingMinutes: '10~15분'
 	},
 	opening: {
 		question: '잔액을 공개하지 않고도 5,000만 원 이상이라는 조건만 확인하게 할 수 있을까?',

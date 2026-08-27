@@ -35,84 +35,86 @@
 	</a>
 
 	<header class="notebook-header">
-		<a class="notebook-back" href={homeHref}>
-			<span aria-hidden="true">←</span>
-			<span>{locale === 'ko' ? '포트폴리오' : 'Portfolio'}</span>
-		</a>
+		<div class="notebook-header__inner">
+			<a class="notebook-brand" href={homeHref}>HONG BEOM JOO</a>
+			<span class="notebook-context" lang="en">Systems Notebook</span>
 
-		<nav class="locale-switch" aria-label={locale === 'ko' ? '언어 선택' : 'Select language'}>
-			<a href={notebookHref('ko')} aria-current={locale === 'ko' ? 'page' : undefined}>KO</a>
-			<span aria-hidden="true">/</span>
-			<a href={notebookHref('en')} aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
-		</nav>
+			<nav class="notebook-nav" aria-label={locale === 'ko' ? 'Notebook 메뉴' : 'Notebook menu'}>
+				<a class="portfolio-link" href={homeHref}>Portfolio</a>
+				<span class="nav-separator" aria-hidden="true"></span>
+				<div
+					class="locale-switch"
+					role="group"
+					aria-label={locale === 'ko' ? '언어 선택' : 'Select language'}
+				>
+					<a
+						href={notebookHref('ko')}
+						aria-label={locale === 'ko' ? '한국어' : 'Korean'}
+						aria-current={locale === 'ko' ? 'page' : undefined}>KO</a
+					>
+					<span aria-hidden="true">/</span>
+					<a
+						href={notebookHref('en')}
+						aria-label="English"
+						aria-current={locale === 'en' ? 'page' : undefined}>EN</a
+					>
+				</div>
+			</nav>
+		</div>
 	</header>
 
-	<main id="notebook-main">
+	<main id="notebook-main" tabindex="-1">
 		<section class="notebook-hero" aria-labelledby="notebook-title">
-			<div class="hero-index" aria-hidden="true">N/01</div>
-			<div class="hero-copy">
-				<p class="eyebrow">{notebook.hero.eyebrow}</p>
-				<h1 id="notebook-title">{notebook.hero.title}</h1>
-				<p class="hero-description">{notebook.hero.description}</p>
-			</div>
-			<div class="hero-path" aria-hidden="true">
-				<span></span><span></span><span></span><span></span>
+			<p class="hero-kicker" lang="en">{notebook.hero.eyebrow}</p>
+			<h1 id="notebook-title">{notebook.hero.title}</h1>
+			<div class="hero-footer">
+				<p>{notebook.hero.description}</p>
+				{#if !notebook.comingSoon}
+					<a href="#zktls-stories">세 글 살펴보기</a>
+				{/if}
 			</div>
 		</section>
 
 		{#if notebook.comingSoon}
 			<section class="coming-soon" aria-labelledby="coming-soon-title">
-				<p class="section-label">Edition status</p>
-				<h2 id="coming-soon-title">English edition coming soon.</h2>
-				<p>
-					The Korean edition is available now. Article translation will follow after the first
-					technical review cycle.
-				</p>
-				<a href={koNotebookHref}>Read the Korean edition <span aria-hidden="true">↗</span></a>
+				<h2 id="coming-soon-title">The Korean edition is available now.</h2>
+				<p>Article translation will follow after the first technical review cycle.</p>
+				<a href={koNotebookHref}>Read the Korean edition</a>
 			</section>
 		{:else}
-			<section class="series" aria-labelledby="series-title">
-				<div class="series-heading">
+			<section class="series" id="zktls-stories" aria-labelledby="series-title">
+				<div class="series-intro">
 					<div>
-						<p class="section-label">{notebook.series.label}</p>
 						<h2 id="series-title">{notebook.series.title}</h2>
+						<p>{notebook.series.description}</p>
 					</div>
-					<p class="series-status"><span></span>{notebook.series.status}</p>
+					<p class="series-count">{notebook.series.items.length}편 / 글마다 9개 Act</p>
 				</div>
 
-				<p class="series-description">{notebook.series.description}</p>
-
-				<div class="story-grid">
+				<div class="story-list">
 					{#each notebook.series.items as item, index (item.slug)}
 						<a
-							class:story-card--wide={index === 0 || index === 2}
-							class:story-card--tall={index === 1}
-							class="story-card"
+							class="story-row"
 							href={storyHref(item.slug)}
 							aria-labelledby={`story-title-${item.slug}`}
+							aria-describedby={`story-description-${item.slug} story-meta-${item.slug}`}
 						>
-							<div class="story-card__top">
-								<span>{item.index}</span>
-								<span>{item.actCount} Acts · {item.readingTime}</span>
-							</div>
-							<div class="story-card__signal" aria-hidden="true">
-								{#if index === 0}
-									<span class="signal-claim">premiumEligible</span>
-									<span class="signal-value">true</span>
-								{:else if index === 1}
-									<span class="signal-record">TLS 1.3</span>
-									<span class="signal-lock">RECORD</span>
-								{:else}
-									<span class="signal-actor">P</span>
-									<span class="signal-actor">N</span>
-									<span class="signal-actor">V</span>
-								{/if}
-							</div>
-							<div class="story-card__copy">
+							<span class="story-index" aria-hidden="true">{item.index}</span>
+							<div class="story-copy">
+								<p class="story-topic">
+									{item.topic}
+									{#if index === 0}<span> / 권장 시작점</span>{/if}
+								</p>
 								<h3 id={`story-title-${item.slug}`}>{item.title}</h3>
-								<p>{item.description}</p>
+								<p class="story-description" id={`story-description-${item.slug}`}>
+									{item.description}
+								</p>
 							</div>
-							<span class="story-card__cta">글 읽기 <span aria-hidden="true">↗</span></span>
+							<div class="story-meta" id={`story-meta-${item.slug}`}>
+								<span>{item.actCount}개 Act</span>
+								<span>{item.readingTime}</span>
+								<span class="story-read">글 읽기</span>
+							</div>
 						</a>
 					{/each}
 				</div>
@@ -120,33 +122,36 @@
 
 			<section class="archive" aria-labelledby="archive-title">
 				<div>
-					<p class="section-label">{notebook.archive.label}</p>
+					<p class="archive-label">{notebook.archive.label}</p>
 					<h2 id="archive-title">{notebook.archive.title}</h2>
 				</div>
-				<p>{notebook.archive.description}</p>
-				<a href={notebook.archive.href} target="_blank" rel="noreferrer">
-					{notebook.archive.cta} <span aria-hidden="true">↗</span>
-				</a>
+				<div class="archive-copy">
+					<p>{notebook.archive.description}</p>
+					<a href={notebook.archive.href} target="_blank" rel="noopener noreferrer">
+						{notebook.archive.cta}<span class="sr-only">, 새 창에서 열림</span>
+					</a>
+				</div>
 			</section>
 		{/if}
 	</main>
 
 	<footer class="notebook-footer">
-		<span>HONGBEOM JOO</span>
-		<span>Systems / Security / Operations</span>
+		<div class="notebook-footer__inner">
+			<span>HONG BEOM JOO</span>
+			<span>Systems / Security / Operations</span>
+		</div>
 	</footer>
 </div>
 
 <style>
 	:global(body) {
-		background: #0d0d0c;
+		background: var(--surface);
 	}
 
 	.notebook-shell {
+		--accent: #ff5500;
 		min-height: 100dvh;
-		background:
-			linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px) 0 0 / 7.5rem 7.5rem,
-			#0d0d0c;
+		background: var(--surface);
 		color: var(--ink);
 		font-family: var(--font-body);
 	}
@@ -161,6 +166,7 @@
 		background: var(--surface);
 		padding: 0.75rem 1rem;
 		color: var(--accent);
+		text-decoration: none;
 	}
 
 	.skip-link:focus {
@@ -168,450 +174,462 @@
 	}
 
 	.notebook-header {
-		position: relative;
-		z-index: 10;
-		display: flex;
+		position: sticky;
+		top: 0;
+		z-index: 30;
+		border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+		background: color-mix(in srgb, var(--surface) 92%, transparent);
+		backdrop-filter: blur(12px);
+	}
+
+	.notebook-header__inner,
+	main,
+	.notebook-footer__inner {
+		box-sizing: border-box;
+		width: min(100%, 78rem);
+		margin: 0 auto;
+		padding-inline: clamp(1.5rem, 4.5vw, 4rem);
+	}
+
+	.notebook-header__inner {
+		display: grid;
+		min-height: 4.5rem;
+		grid-template-columns: auto 1fr auto;
 		align-items: center;
-		justify-content: space-between;
-		border-bottom: 1px solid var(--line);
-		padding: 1.25rem clamp(1.25rem, 4vw, 4rem);
+		gap: 1.5rem;
+	}
+
+	.notebook-brand,
+	.notebook-context,
+	.notebook-nav,
+	.locale-switch {
 		font-family: var(--font-mono);
-		font-size: 0.72rem;
-		letter-spacing: 0.12em;
+		font-size: 0.75rem;
+		letter-spacing: 0.1em;
 		text-transform: uppercase;
 	}
 
-	.notebook-back,
-	.locale-switch a {
-		color: var(--ink-soft);
+	.notebook-brand {
+		color: var(--ink-strong);
+		font-family: var(--font-display);
+		font-weight: 700;
+		letter-spacing: 0.04em;
 		text-decoration: none;
 	}
 
-	.notebook-back {
-		display: inline-flex;
-		gap: 0.65rem;
+	.notebook-context {
+		border-left: 1px solid var(--line);
+		padding-left: 1.5rem;
+		color: var(--ink-soft);
 	}
 
-	.notebook-back:hover,
-	.notebook-back:focus-visible,
-	.locale-switch a:hover,
-	.locale-switch a:focus-visible,
-	.locale-switch a[aria-current='page'] {
-		color: #ff5500;
+	.notebook-nav,
+	.locale-switch {
+		display: flex;
+		align-items: center;
+	}
+
+	.notebook-nav {
+		gap: 1.25rem;
 	}
 
 	.locale-switch {
-		display: flex;
 		gap: 0.5rem;
 	}
 
-	main {
-		width: min(100%, 96rem);
-		margin: 0 auto;
+	.notebook-nav a {
+		color: var(--ink-soft);
+		text-decoration: none;
+		transition: color 160ms ease;
+	}
+
+	.notebook-nav a:hover,
+	.notebook-nav a:focus-visible,
+	.notebook-nav a[aria-current='page'] {
+		color: var(--accent);
+	}
+
+	.nav-separator {
+		width: 1px;
+		height: 1rem;
+		background: var(--line);
+	}
+
+	main:focus {
+		outline: none;
 	}
 
 	.notebook-hero {
-		position: relative;
-		display: grid;
-		min-height: min(86dvh, 58rem);
-		grid-template-columns: minmax(4rem, 0.32fr) minmax(0, 1.5fr) minmax(13rem, 0.55fr);
-		align-items: end;
+		display: flex;
+		min-height: clamp(32rem, 64vh, 38rem);
+		box-sizing: border-box;
+		flex-direction: column;
+		justify-content: space-between;
 		border-bottom: 1px solid var(--line);
-		padding: clamp(5rem, 10vw, 9rem) clamp(1.25rem, 4vw, 4rem) clamp(4rem, 8vw, 7rem);
-		overflow: hidden;
+		padding-block: clamp(5rem, 9vw, 8rem) clamp(4rem, 7vw, 6rem);
 	}
 
-	.hero-index {
-		align-self: start;
-		color: #ff5500;
+	.hero-kicker,
+	.story-topic,
+	.series-count,
+	.archive-label {
+		margin: 0;
+		color: var(--ink-soft);
 		font-family: var(--font-mono);
-		font-size: 0.7rem;
-		letter-spacing: 0.16em;
-	}
-
-	.hero-copy {
-		position: relative;
-		z-index: 2;
-		max-width: 66rem;
-	}
-
-	.eyebrow,
-	.section-label {
-		margin: 0 0 1.5rem;
-		color: #ff5500;
-		font-family: var(--font-mono);
-		font-size: 0.72rem;
-		letter-spacing: 0.16em;
+		font-size: 0.75rem;
+		letter-spacing: 0.1em;
 		text-transform: uppercase;
 	}
 
 	.notebook-hero h1 {
-		max-width: 14ch;
-		margin: 0;
+		max-width: 15ch;
+		margin: 4rem 0;
 		color: var(--ink-strong);
 		font-family: var(--font-display);
-		font-size: clamp(3.15rem, 7.5vw, 7.8rem);
-		font-weight: 900;
-		line-height: 0.95;
-		letter-spacing: -0.055em;
+		font-size: clamp(3.25rem, 5.2vw, 4.75rem);
+		font-weight: 800;
+		line-height: 1.02;
+		letter-spacing: -0.045em;
+		white-space: pre-line;
+		text-wrap: balance;
 		word-break: keep-all;
 	}
 
-	.hero-description {
-		max-width: 50rem;
-		margin: 2.25rem 0 0;
-		color: var(--ink-soft);
-		font-size: clamp(1rem, 1.5vw, 1.25rem);
-		line-height: 1.8;
-		word-break: keep-all;
-	}
-
-	.hero-path {
-		position: relative;
-		align-self: stretch;
-		min-height: 22rem;
-	}
-
-	.hero-path::before {
-		position: absolute;
-		top: 8%;
-		bottom: -9rem;
-		left: 50%;
-		width: 1px;
-		background: linear-gradient(180deg, transparent, #ff5500 35%, #ff5500 70%, transparent);
-		content: '';
-	}
-
-	.hero-path span {
-		position: absolute;
-		left: 50%;
-		width: 0.72rem;
-		height: 0.72rem;
-		transform: translateX(-50%) rotate(45deg);
-		border: 1px solid #ff5500;
-		background: #0d0d0c;
-	}
-
-	.hero-path span:nth-child(1) {
-		top: 13%;
-	}
-	.hero-path span:nth-child(2) {
-		top: 37%;
-	}
-	.hero-path span:nth-child(3) {
-		top: 61%;
-		background: #ff5500;
-	}
-	.hero-path span:nth-child(4) {
-		top: 85%;
-	}
-
-	.series {
-		padding: clamp(5rem, 10vw, 9rem) clamp(1.25rem, 4vw, 4rem);
-	}
-
-	.series-heading {
-		display: flex;
+	.hero-footer {
+		display: grid;
+		grid-template-columns: minmax(0, 44rem) auto;
 		align-items: end;
 		justify-content: space-between;
-		gap: 2rem;
+		gap: 3rem;
 	}
 
-	.series-heading h2,
-	.archive h2,
-	.coming-soon h2 {
-		margin: 0;
-		color: var(--ink-strong);
-		font-family: var(--font-display);
-		font-size: clamp(2.5rem, 5vw, 5rem);
-		line-height: 0.95;
-		letter-spacing: -0.045em;
-	}
-
-	.series-status {
-		display: flex;
-		align-items: center;
-		gap: 0.65rem;
-		margin: 0 0 0.35rem;
-		color: var(--ink-soft);
-		font-family: var(--font-mono);
-		font-size: 0.72rem;
-		letter-spacing: 0.1em;
-	}
-
-	.series-status span {
-		width: 0.45rem;
-		height: 0.45rem;
-		border-radius: 50%;
-		background: #ff5500;
-	}
-
-	.series-description {
-		max-width: 55rem;
-		margin: 2rem 0 4rem min(18vw, 13rem);
-		color: var(--ink-soft);
-		font-size: 1.05rem;
-		line-height: 1.8;
-		word-break: keep-all;
-	}
-
-	.story-grid {
-		display: grid;
-		grid-template-columns: minmax(0, 1.45fr) minmax(17rem, 0.55fr);
-		gap: 1px;
-		background: var(--line);
-		border: 1px solid var(--line);
-	}
-
-	.story-card {
-		position: relative;
-		display: flex;
-		min-height: 31rem;
-		flex-direction: column;
-		justify-content: space-between;
-		padding: clamp(1.5rem, 3vw, 3rem);
-		overflow: hidden;
-		background: #0d0d0c;
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.story-card--wide:first-child {
-		grid-row: span 2;
-		min-height: 48rem;
-	}
-
-	.story-card--wide:last-child {
-		grid-column: 1 / -1;
-		min-height: 34rem;
-	}
-
-	.story-card::after {
-		position: absolute;
-		inset: 0;
-		background: linear-gradient(135deg, transparent 45%, rgba(255, 85, 0, 0.08));
-		opacity: 0;
-		content: '';
-		transition: opacity 220ms ease;
-	}
-
-	.story-card:hover::after,
-	.story-card:focus-visible::after {
-		opacity: 1;
-	}
-
-	.story-card:focus-visible {
-		outline: 2px solid #ff5500;
-		outline-offset: -2px;
-	}
-
-	.story-card__top,
-	.story-card__cta {
-		position: relative;
-		z-index: 2;
-		display: flex;
-		justify-content: space-between;
-		color: var(--ink-soft);
-		font-family: var(--font-mono);
-		font-size: 0.68rem;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-	}
-
-	.story-card__signal {
-		position: relative;
-		z-index: 2;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.75rem;
-		min-height: 10rem;
-		color: #ff5500;
-		font-family: var(--font-mono);
-	}
-
-	.signal-claim,
-	.signal-record {
-		border: 1px solid #ff5500;
-		padding: 0.8rem 1rem;
-	}
-
-	.signal-value,
-	.signal-lock {
-		background: #ff5500;
-		padding: 0.8rem 1rem;
-		color: #0d0d0c;
-	}
-
-	.signal-actor {
-		display: grid;
-		width: clamp(3.5rem, 7vw, 6rem);
-		aspect-ratio: 1;
-		place-items: center;
-		border: 1px solid #ff5500;
-		font-size: clamp(1.2rem, 3vw, 2rem);
-	}
-
-	.signal-actor:nth-child(2) {
-		transform: translateY(-2rem);
-		background: #ff5500;
-		color: #0d0d0c;
-	}
-
-	.story-card__copy {
-		position: relative;
-		z-index: 2;
-		max-width: 60rem;
-	}
-
-	.story-card h3 {
-		max-width: 16ch;
-		margin: 0;
-		color: var(--ink-strong);
-		font-family: var(--font-display);
-		font-size: clamp(1.8rem, 3.7vw, 4.15rem);
-		line-height: 1.05;
-		letter-spacing: -0.04em;
-		word-break: keep-all;
-	}
-
-	.story-card--tall h3 {
-		font-size: clamp(1.7rem, 2.4vw, 2.7rem);
-	}
-
-	.story-card__copy p {
-		max-width: 44rem;
-		margin: 1.4rem 0 0;
+	.hero-footer p,
+	.series-intro > div > p,
+	.story-description,
+	.archive-copy > p,
+	.coming-soon > p {
 		color: var(--ink-soft);
 		line-height: 1.75;
 		word-break: keep-all;
 	}
 
-	.story-card__cta {
-		margin-top: 2rem;
-		justify-content: flex-end;
-		color: #ff5500;
-	}
-
-	.archive {
-		display: grid;
-		grid-template-columns: 1.1fr 1fr auto;
-		align-items: end;
-		gap: clamp(2rem, 6vw, 6rem);
-		border-top: 1px solid var(--line);
-		padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 4vw, 4rem);
-	}
-
-	.archive h2 {
-		font-size: clamp(2rem, 4vw, 4rem);
-	}
-
-	.archive > p,
-	.coming-soon > p {
+	.hero-footer p {
 		margin: 0;
-		color: var(--ink-soft);
-		line-height: 1.8;
-		word-break: keep-all;
+		font-size: clamp(1rem, 1.4vw, 1.125rem);
 	}
 
-	.archive > a,
-	.coming-soon > a {
-		border-bottom: 1px solid #ff5500;
-		padding-bottom: 0.4rem;
-		color: #ff5500;
+	.hero-footer a,
+	.archive-copy a,
+	.coming-soon a {
+		width: fit-content;
+		border-bottom: 1px solid var(--accent);
+		padding-bottom: 0.3rem;
+		color: var(--accent);
 		font-family: var(--font-mono);
 		font-size: 0.75rem;
-		letter-spacing: 0.08em;
+		letter-spacing: 0.06em;
 		text-decoration: none;
 		white-space: nowrap;
 	}
 
+	.series {
+		scroll-margin-top: 5rem;
+		padding-block: clamp(5rem, 8vw, 7rem) clamp(6rem, 10vw, 9rem);
+	}
+
+	.series-intro {
+		display: grid;
+		grid-template-columns: minmax(0, 44rem) auto;
+		align-items: end;
+		justify-content: space-between;
+		gap: 3rem;
+		margin-bottom: clamp(3rem, 6vw, 5rem);
+	}
+
+	.series-intro h2,
+	.archive h2,
+	.coming-soon h2 {
+		margin: 0;
+		color: var(--ink-strong);
+		font-family: var(--font-display);
+		font-size: clamp(2.4rem, 4vw, 3.5rem);
+		font-weight: 700;
+		line-height: 1.05;
+		letter-spacing: -0.035em;
+		text-wrap: balance;
+	}
+
+	.series-intro > div > p {
+		max-width: 42rem;
+		margin: 1.5rem 0 0;
+	}
+
+	.series-count {
+		padding-bottom: 0.35rem;
+		color: var(--ink-soft);
+		white-space: nowrap;
+	}
+
+	.story-list {
+		border-top: 1px solid var(--line);
+	}
+
+	.story-row {
+		display: grid;
+		min-height: 13rem;
+		box-sizing: border-box;
+		grid-template-columns: 4.5rem minmax(0, 1fr) 10rem;
+		align-items: start;
+		gap: clamp(1.5rem, 3vw, 3rem);
+		border-bottom: 1px solid var(--line);
+		padding-block: clamp(2rem, 4vw, 2.75rem);
+		color: inherit;
+		text-decoration: none;
+		transition:
+			border-color 180ms ease,
+			background-color 180ms ease;
+	}
+
+	.story-row:hover,
+	.story-row:focus-visible {
+		border-bottom-color: var(--accent);
+		background: color-mix(in srgb, var(--surface-raised) 38%, transparent);
+	}
+
+	.story-row:focus-visible,
+	.hero-footer a:focus-visible,
+	.archive-copy a:focus-visible,
+	.coming-soon a:focus-visible,
+	.notebook-brand:focus-visible,
+	.notebook-nav a:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 5px;
+	}
+
+	.story-index {
+		color: var(--ink-soft);
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+		letter-spacing: 0.08em;
+		transition: color 180ms ease;
+	}
+
+	.story-row:hover .story-index,
+	.story-row:focus-visible .story-index,
+	.story-row:hover .story-read,
+	.story-row:focus-visible .story-read {
+		color: var(--accent);
+	}
+
+	.story-topic {
+		color: var(--ink-soft);
+	}
+
+	.story-topic span {
+		color: var(--accent);
+	}
+
+	.story-copy h3 {
+		max-width: 28ch;
+		margin: 1rem 0 0;
+		color: var(--ink-strong);
+		font-family: var(--font-display);
+		font-size: clamp(1.8rem, 3.1vw, 2.55rem);
+		font-weight: 700;
+		line-height: 1.12;
+		letter-spacing: -0.035em;
+		text-wrap: balance;
+		word-break: keep-all;
+	}
+
+	.story-description {
+		max-width: 48rem;
+		margin: 1.25rem 0 0;
+		font-size: 0.98rem;
+	}
+
+	.story-meta {
+		display: flex;
+		min-height: 100%;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.45rem;
+		color: var(--ink-soft);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		letter-spacing: 0.06em;
+		white-space: nowrap;
+	}
+
+	.story-read {
+		margin-top: auto;
+		color: var(--ink-strong);
+		transition: color 180ms ease;
+	}
+
+	.archive {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.9fr);
+		gap: clamp(3rem, 8vw, 7rem);
+		border-top: 1px solid var(--line);
+		padding-block: clamp(4rem, 7vw, 6rem);
+	}
+
+	.archive-label {
+		margin-bottom: 1rem;
+		color: var(--accent);
+	}
+
+	.archive h2 {
+		max-width: 16ch;
+		font-size: clamp(2rem, 3.5vw, 3rem);
+	}
+
+	.archive-copy {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 2rem;
+	}
+
+	.archive-copy > p {
+		margin: 0;
+	}
+
 	.coming-soon {
 		display: grid;
-		min-height: 50dvh;
+		min-height: 34rem;
 		gap: 2rem;
 		align-content: center;
-		padding: clamp(4rem, 9vw, 9rem) clamp(1.25rem, 4vw, 4rem);
+		border-bottom: 1px solid var(--line);
 	}
 
-	.coming-soon h2 {
-		max-width: 15ch;
-	}
-
+	.coming-soon h2,
 	.coming-soon p {
-		max-width: 44rem;
-	}
-
-	.coming-soon a {
-		width: fit-content;
+		max-width: 42rem;
+		margin: 0;
 	}
 
 	.notebook-footer {
-		display: flex;
-		justify-content: space-between;
 		border-top: 1px solid var(--line);
-		padding: 2rem clamp(1.25rem, 4vw, 4rem);
+	}
+
+	.notebook-footer__inner {
+		display: flex;
+		min-height: 5rem;
+		align-items: center;
+		justify-content: space-between;
+		gap: 2rem;
 		color: var(--ink-soft);
 		font-family: var(--font-mono);
-		font-size: 0.65rem;
-		letter-spacing: 0.1em;
+		font-size: 0.75rem;
+		letter-spacing: 0.08em;
 		text-transform: uppercase;
 	}
 
 	@media (max-width: 760px) {
-		.notebook-hero {
-			min-height: auto;
-			grid-template-columns: 1fr;
-			align-items: start;
-			gap: 3rem;
-			padding-top: 6rem;
+		.notebook-header__inner {
+			grid-template-columns: 1fr auto;
+			gap: 1rem;
 		}
 
-		.hero-index {
-			order: -1;
-		}
-
-		.hero-path {
+		.notebook-context,
+		.portfolio-link,
+		.nav-separator {
 			display: none;
 		}
 
+		.notebook-hero {
+			min-height: 30rem;
+			padding-block: 4.5rem 3.5rem;
+		}
+
 		.notebook-hero h1 {
-			font-size: clamp(2.8rem, 14vw, 4.5rem);
+			max-width: 13ch;
+			margin-block: 3rem;
+			font-size: clamp(2.6rem, 10.5vw, 3.25rem);
+			line-height: 1.04;
 		}
 
-		.series-heading,
-		.archive,
-		.notebook-footer {
-			align-items: start;
-			flex-direction: column;
-		}
-
-		.series-heading {
-			display: flex;
-		}
-
-		.series-description {
-			margin-left: 0;
-		}
-
-		.story-grid {
+		.hero-footer,
+		.series-intro,
+		.archive {
 			grid-template-columns: 1fr;
 		}
 
-		.story-card,
-		.story-card--wide:first-child,
-		.story-card--wide:last-child {
-			grid-column: auto;
-			grid-row: auto;
-			min-height: 34rem;
+		.hero-footer {
+			align-items: start;
+			gap: 2rem;
+		}
+
+		.series {
+			padding-block: 4.5rem 6rem;
+		}
+
+		.series-intro {
+			align-items: start;
+			gap: 1.5rem;
+			margin-bottom: 3rem;
+		}
+
+		.series-count {
+			padding: 0;
+		}
+
+		.story-row {
+			min-height: 0;
+			grid-template-columns: 2.25rem minmax(0, 1fr);
+			gap: 1rem;
+			padding-block: 2rem;
+		}
+
+		.story-copy h3 {
+			margin-top: 0.75rem;
+			font-size: clamp(1.65rem, 7vw, 2rem);
+		}
+
+		.story-description {
+			font-size: 0.94rem;
+		}
+
+		.story-meta {
+			grid-column: 2;
+			min-height: 0;
+			flex-direction: row;
+			align-items: center;
+			gap: 0.75rem;
+			margin-top: 0.25rem;
+		}
+
+		.story-read {
+			margin: 0 0 0 auto;
 		}
 
 		.archive {
-			display: flex;
+			gap: 2rem;
+			padding-block: 4rem;
 		}
 
-		.notebook-footer {
-			gap: 0.7rem;
+		.notebook-footer__inner {
+			min-height: 6rem;
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: center;
+			gap: 0.45rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:global(html) {
+			scroll-behavior: auto;
+		}
+
+		.story-row,
+		.story-index,
+		.story-read,
+		.notebook-nav a {
+			transition: none;
 		}
 	}
 </style>

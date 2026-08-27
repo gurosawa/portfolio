@@ -5,10 +5,10 @@
 	import CustomCursor from '$lib/portfolio/components/CustomCursor.svelte';
 
 	let { children } = $props();
-	const isStoryRoute = $derived(page.url.pathname.includes('/notebook/zktls/'));
+	const isNotebookRoute = $derived(page.url.pathname.includes('/notebook'));
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-{#if !isStoryRoute}<CustomCursor />{/if}
+{#if !isNotebookRoute}<CustomCursor />{/if}
 {@render children()}

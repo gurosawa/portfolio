@@ -23,7 +23,7 @@ export const tls13Story = defineStory({
 		canonicalPath: '/ko/notebook/zktls/tls13/',
 		publishedAt: '2026-08-26',
 		technicallyReviewedAt: '2026-08-26',
-		readingMinutes: '10–15분'
+		readingMinutes: '10~15분'
 	},
 	opening: {
 		question: 'HTTPS로 받은 이 JSON을 저장하면, 제3자도 원본 서버의 응답이라고 확인할 수 있을까?',

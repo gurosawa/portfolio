@@ -11,8 +11,29 @@ describe('Systems Notebook public catalog', () => {
 			'/ko/notebook/zktls/tlsnotary/'
 		]);
 		expect(notebook.series.status).toBe('세 편 모두 공개');
-		expect(notebook.archive.label).toBe('External Archive');
+		expect(notebook.archive.label).toBe('기존 운영 기록');
 		expect(notebook.archive.href).toBe('https://brave-hill-0cb321b00.7.azurestaticapps.net/#home');
+	});
+
+	it('uses concise catalog copy without typographic dashes', () => {
+		const notebook = getNotebookHome('ko');
+		const visibleCatalogCopy = [
+			notebook.hero.title,
+			notebook.hero.description,
+			notebook.series.title,
+			notebook.series.description,
+			notebook.archive.label,
+			notebook.archive.description,
+			...notebook.series.items.flatMap((item) => [
+				item.topic,
+				item.title,
+				item.description,
+				item.readingTime
+			])
+		].join(' ');
+
+		expect(visibleCatalogCopy).not.toMatch(/[—–]/);
+		expect(notebook.series.items.every((item) => item.readingTime === '10~15분')).toBe(true);
 	});
 
 	it('keeps the English notebook intentionally small for the first release', () => {

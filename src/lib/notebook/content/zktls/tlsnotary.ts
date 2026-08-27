@@ -10,7 +10,7 @@ export const tlsnotaryStory = defineStory({
 		canonicalPath: '/ko/notebook/zktls/tlsnotary/',
 		publishedAt: '2026-08-26',
 		technicallyReviewedAt: '2026-08-26',
-		readingMinutes: '10–15분'
+		readingMinutes: '10~15분'
 	},
 	opening: {
 		question: '은행 잔액은 숨긴 채 조건만 증명할 때, 네 참여자 가운데 누가 실제 숫자를 보게 될까?',
