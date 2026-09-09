@@ -1,0 +1,95 @@
+{
+	"publishedPayloadSha256": "2cd3216b452da4a4e27a83a0dddd91b11625552648771baecd0038f3f09561e8",
+	"posts": [
+		{
+			"slug": "01-rke2-kubernetes-foundation",
+			"sourceFile": "01-rke2-kubernetes-foundation.md",
+			"markdownSha256": "2b64dabedd55014187d3af082a4f260cf6d69a445046726b3224c134f47d5727",
+			"bodySha256": "8bf2ce0442af7799d48769b31321b0980af1191063aff5e99f74524e0f036350"
+		},
+		{
+			"slug": "02-kubernetes-traffic-kube-vip-metallb-gateway-api",
+			"sourceFile": "02-kubernetes-traffic-kube-vip-metallb-gateway-api.md",
+			"markdownSha256": "a6d33a3ec75b3b6aa8bbce1e20f27e74477b4a76e3b8bb514f422d7908b47c85",
+			"bodySha256": "a9a34d04f179123c88446701d36a66d6e39fc0242aeaecd0bdbbfc2ad11ff3ed"
+		},
+		{
+			"slug": "03-kubernetes-storage-nfs-csi",
+			"sourceFile": "03-kubernetes-storage-nfs-csi.md",
+			"markdownSha256": "0643f1e2473abd1b57a41c7e5329c426d6ddad879f8488187249b8e05d14ac2a",
+			"bodySha256": "2e25808bb722ca3f32486e0eae5452d1ae5f27420fc06f78ddca7308da12ffa5"
+		},
+		{
+			"slug": "04-keycloak-oidc-saml-sso",
+			"sourceFile": "04-keycloak-oidc-saml-sso.md",
+			"markdownSha256": "accf1df1d40ad26d9e3edebea8b5b92624975f5a7f9fb75a1de5f0b5ed8fc603",
+			"bodySha256": "8f982753d9733537a8e2c445ec577ce08a062585b51dfcc6acc86760debd4aa0"
+		},
+		{
+			"slug": "05-keycloak-argocd-rbac",
+			"sourceFile": "05-keycloak-argocd-rbac.md",
+			"markdownSha256": "cf7b04ac3d53633223d93fd0321bb62a4cf7a5f1f7289a56173e94c79dfae76c",
+			"bodySha256": "817e7476ec8734d3f463b024c103533ef27f1a947010bebf74c5929d01ed7860"
+		},
+		{
+			"slug": "06-kubernetes-observability",
+			"sourceFile": "06-kubernetes-observability.md",
+			"markdownSha256": "0e332c8276b490c19eb74b8053e763922dc04f636ea4f06d09a2206db527b86b",
+			"bodySha256": "bc028a8a5281dd46e16c7a718cd976ee156457fdfa3e9debbddbc4b47a78ec77"
+		},
+		{
+			"slug": "07-prometheus-grafana-loki-fluent-bit",
+			"sourceFile": "07-prometheus-grafana-loki-fluent-bit.md",
+			"markdownSha256": "99b7ed9ae012be5094a1634f1cf968d86a821a6f0a431e6a57c1929a1c779613",
+			"bodySha256": "88a712fe4d4936a8df10e66ff33cd807fc073b64b9a2787da4af2e9fdffeeb93"
+		},
+		{
+			"slug": "08-cicd-to-gitops-gitlab",
+			"sourceFile": "08-cicd-to-gitops-gitlab.md",
+			"markdownSha256": "1dd2d78513dfee159ab501af34cb3beba8a2725efc7c7d4d7959d7447a9cc141",
+			"bodySha256": "70e56e36b425c0eff44ef7ff50df1a15eeb591e3d321e9f6bc506bd1348e90df"
+		},
+		{
+			"slug": "09-container-artifacts-harbor-helm-repository",
+			"sourceFile": "09-container-artifacts-harbor-helm-repository.md",
+			"markdownSha256": "99417f0a0d613108420c79f0075ec914b8f3e5cf6c4179e96ceb934c95013800",
+			"bodySha256": "832efe61c35d1ce1349bf9c2b0831af17df95653bc39148a95c7602c56276e63"
+		},
+		{
+			"slug": "10-gitlab-harbor-argocd-end-to-end",
+			"sourceFile": "10-gitlab-harbor-argocd-end-to-end.md",
+			"markdownSha256": "60011ca68cc637bea93c0b31af5956597d6ec108c3a0a671545d26d36d0b801b",
+			"bodySha256": "4ce09d41af71e3fa86b941b4b335f005b5cc81cc6f96a8eea51121ddf1d79dfb"
+		},
+		{
+			"slug": "11-multicluster-gitops-promotion",
+			"sourceFile": "11-multicluster-gitops-promotion.md",
+			"markdownSha256": "18d06008ed57b9f3d84b9d31e645c8ed6bc77a1d0d5c8d7844d05b6df05d94bc",
+			"bodySha256": "6e9c3472a7f8a0b2e30b9a6c39599868c43332aaaa6dcf29dcb8161857ec65b3"
+		},
+		{
+			"slug": "12-mlops-mlflow-ray-kserve-knative",
+			"sourceFile": "12-mlops-mlflow-ray-kserve-knative.md",
+			"markdownSha256": "2f798fcf503f2121399c29af8f74a3cafe9b3a3c37305461ec15650ba6abec83",
+			"bodySha256": "f046234c7f33f92dca3459d5a81fb624c6f22fab49bbe60e68842bf76330546d"
+		},
+		{
+			"slug": "13-reproducible-ml-storage-versioning",
+			"sourceFile": "13-reproducible-ml-storage-versioning.md",
+			"markdownSha256": "3bf8fec5d2004c3a9c2edf85027c1f7744ce27bced7328c546a3a9f95fd58430",
+			"bodySha256": "0f7f996949b70995d519294cf0a69c71905163cdbfbe6721395e34b137b927f9"
+		},
+		{
+			"slug": "14-gitops-meets-ml-pipeline",
+			"sourceFile": "14-gitops-meets-ml-pipeline.md",
+			"markdownSha256": "02572e770f0bc3d9d0744f04bb0fbfac80d6a907e5cf1f32fef6abb34e2ba46f",
+			"bodySha256": "f20551ce38086ece8dad6b4abb38b6fecd9bf403aacd8b4033176e029692251b"
+		},
+		{
+			"slug": "15-rayjob-mlflow-kserve-capstone",
+			"sourceFile": "15-rayjob-mlflow-kserve-capstone.md",
+			"markdownSha256": "30c625a98d556ac79d793db84d80efd898c19ff0015023dd3dc39eede842400f",
+			"bodySha256": "a4b61f66d098b0b454e3075d244c4e172ac95454536f64d2e8e0800235341038"
+		}
+	]
+}

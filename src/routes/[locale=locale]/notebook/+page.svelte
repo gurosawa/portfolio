@@ -1,635 +1,903 @@
 <script lang="ts">
+	import { getContext, onMount } from 'svelte';
+	import { afterNavigate, replaceState } from '$app/navigation';
+	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { notebookCanonicalPath } from '$lib/notebook/notebook';
+	import FlowPreview from '$lib/notebook/components/FlowPreview.svelte';
+	import { filterNotebook } from '$lib/notebook/catalog-filter';
+	import type { NotebookArea, NotebookKind } from '$lib/notebook/notebook';
+	import { notebookPreferenceContext, type NotebookPreferences } from '$lib/notebook/notebook-ui';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-
+	const preferences = getContext<NotebookPreferences>(notebookPreferenceContext);
 	const notebook = $derived(data.notebook);
-	const locale = $derived(data.locale);
-	const homeHref = $derived(resolve('/[locale=locale]', { locale }));
-	const koNotebookHref = resolve('/[locale=locale]/notebook', { locale: 'ko' });
-	const productionOrigin = 'https://wonderful-water-044d9f700.7.azurestaticapps.net';
-	const canonicalUrl = $derived(`${productionOrigin}${notebookCanonicalPath(locale)}`);
+	let area = $state<NotebookArea | 'all'>('all');
+	let kind = $state<NotebookKind | 'all'>('all');
+	let query = $state('');
+	let selectedId = $state('');
+	const labels = { concept: '개념 설명', reference: '자료 정리', experiment: '직접 실험' };
+	const areas = [
+		{ id: 'all', label: '전체' },
+		{ id: 'ops', label: 'Ops', detail: '인프라와 운영' },
+		{ id: 'sec', label: 'Sec', detail: '보안과 인증' }
+	] as const;
+	const results = $derived(filterNotebook(notebook.entries, { area, kind, query }));
+	const featuredEntries = $derived(
+		notebook.featuredIds.flatMap((id) => {
+			const entry = notebook.entries.find((item) => item.id === id);
+			return entry && (area === 'all' || entry.areas.includes(area)) ? [entry] : [];
+		})
+	);
+	const featured = $derived(
+		featuredEntries.find((item) => item.id === selectedId) ?? featuredEntries[0]
+	);
+	const availableKinds = $derived(
+		(['concept', 'reference', 'experiment'] as const).filter((value) =>
+			notebook.entries.some((entry) => entry.kind === value)
+		)
+	);
+	const series = $derived(
+		area === 'ops'
+			? '운영과 배포를 살펴보는 기록'
+			: area === 'sec'
+				? '연결과 데이터의 보안을 살펴보는 기록'
+				: '구성과 원리를 함께 살펴보는 기록'
+	);
 
-	function notebookHref(nextLocale: 'ko' | 'en') {
-		return resolve('/[locale=locale]/notebook', { locale: nextLocale });
+	function syncFromUrl() {
+		const params = new URL(window.location.href).searchParams;
+		const nextArea = params.get('area');
+		const nextKind = params.get('kind');
+		area = nextArea === 'ops' || nextArea === 'sec' ? nextArea : 'all';
+		kind =
+			nextKind === 'reference' || nextKind === 'concept' || nextKind === 'experiment'
+				? nextKind
+				: 'all';
+		query = params.get('q') ?? '';
 	}
-
-	function storyHref(slug: string) {
-		return resolve('/[locale=locale]/notebook/zktls/[slug]', { locale: 'ko', slug });
+	function saveFilters() {
+		const url = new URL(window.location.href);
+		if (area === 'all') url.searchParams.delete('area');
+		else url.searchParams.set('area', area);
+		if (kind === 'all') url.searchParams.delete('kind');
+		else url.searchParams.set('kind', kind);
+		if (query.trim()) url.searchParams.set('q', query);
+		else url.searchParams.delete('q');
+		// This is the current resolved URL; only its search parameters change.
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
+		replaceState(url, page.state);
 	}
+	function chooseArea(value: typeof area) {
+		area = value;
+		selectedId = '';
+		saveFilters();
+	}
+	function reset() {
+		area = 'all';
+		kind = 'all';
+		query = '';
+		saveFilters();
+	}
+	onMount(syncFromUrl);
+	afterNavigate(syncFromUrl);
 </script>
 
 <!-- eslint-disable svelte/no-navigation-without-resolve -->
-
 <svelte:head>
 	<title>{notebook.meta.title}</title>
 	<meta name="description" content={notebook.meta.description} />
-	<link rel="canonical" href={canonicalUrl} />
+	<link
+		rel="canonical"
+		href={`https://wonderful-water-044d9f700.7.azurestaticapps.net/${data.locale}/notebook/`}
+	/>
 </svelte:head>
 
-<div class="notebook-shell" lang={locale}>
-	<a class="skip-link" href="#notebook-main">
-		{locale === 'ko' ? '본문으로 건너뛰기' : 'Skip to main content'}
-	</a>
-
-	<header class="notebook-header">
-		<div class="notebook-header__inner">
-			<a class="notebook-brand" href={homeHref}>HONG BEOM JOO</a>
-			<span class="notebook-context" lang="en">Systems Notebook</span>
-
-			<nav class="notebook-nav" aria-label={locale === 'ko' ? 'Notebook 메뉴' : 'Notebook menu'}>
-				<a class="portfolio-link" href={homeHref}>Portfolio</a>
-				<span class="nav-separator" aria-hidden="true"></span>
-				<div
-					class="locale-switch"
-					role="group"
-					aria-label={locale === 'ko' ? '언어 선택' : 'Select language'}
-				>
-					<a
-						href={notebookHref('ko')}
-						aria-label={locale === 'ko' ? '한국어' : 'Korean'}
-						aria-current={locale === 'ko' ? 'page' : undefined}>KO</a
-					>
-					<span aria-hidden="true">/</span>
-					<a
-						href={notebookHref('en')}
-						aria-label="English"
-						aria-current={locale === 'en' ? 'page' : undefined}>EN</a
-					>
-				</div>
-			</nav>
-		</div>
-	</header>
-
-	<main id="notebook-main" tabindex="-1">
-		<section class="notebook-hero" aria-labelledby="notebook-title">
-			<p class="hero-kicker" lang="en">{notebook.hero.eyebrow}</p>
-			<h1 id="notebook-title">{notebook.hero.title}</h1>
-			<div class="hero-footer">
-				<p>{notebook.hero.description}</p>
-				{#if !notebook.comingSoon}
-					<a href="#zktls-stories">세 글 살펴보기</a>
-				{/if}
-			</div>
+<main id="notebook-main" class="notebook-main" tabindex="-1">
+	{#if notebook.comingSoon}
+		<section class="edition">
+			<h1>Systems Notebook<span>.</span></h1>
+			<p>The Korean edition is available now. English articles will follow.</p>
+			<a class="read-link" href={resolve('/[locale=locale]/notebook', { locale: 'ko' })}
+				>한국어 글 읽기 <span aria-hidden="true">↗</span></a
+			>
+		</section>
+	{:else}
+		<section class="intro" aria-labelledby="notebook-title">
+			<h1 id="notebook-title">Systems Notebook<span>.</span></h1>
+			<p>
+				인프라를 운영하고 원리를 살펴보고.<br class="mobile-break" /> 그 과정을 남기는 기술 노트.
+			</p>
 		</section>
 
-		{#if notebook.comingSoon}
-			<section class="coming-soon" aria-labelledby="coming-soon-title">
-				<h2 id="coming-soon-title">The Korean edition is available now.</h2>
-				<p>Article translation will follow after the first technical review cycle.</p>
-				<a href={koNotebookHref}>Read the Korean edition</a>
-			</section>
-		{:else}
-			<section class="series" id="zktls-stories" aria-labelledby="series-title">
-				<div class="series-intro">
-					<div>
-						<h2 id="series-title">{notebook.series.title}</h2>
-						<p>{notebook.series.description}</p>
-					</div>
-					<p class="series-count">{notebook.series.items.length}편 / 글마다 9개 Act</p>
-				</div>
-
-				<div class="story-list">
-					{#each notebook.series.items as item, index (item.slug)}
-						<a
-							class="story-row"
-							href={storyHref(item.slug)}
-							aria-labelledby={`story-title-${item.slug}`}
-							aria-describedby={`story-description-${item.slug} story-meta-${item.slug}`}
+		<div class="explore-bar">
+			<nav class="area-filters" aria-label="글 분야">
+				{#each areas as item (item.id)}
+					<button
+						type="button"
+						class:active={area === item.id}
+						aria-pressed={area === item.id}
+						onclick={() => chooseArea(item.id)}
+					>
+						<span>{item.label}</span>
+						{#if 'detail' in item}<span class="area-detail">{item.detail}</span>{/if}
+						<span class="area-count"
+							>{item.id === 'all'
+								? notebook.entries.length
+								: notebook.entries.filter((entry) => entry.areas.includes(item.id as NotebookArea))
+										.length}</span
 						>
-							<span class="story-index" aria-hidden="true">{item.index}</span>
-							<div class="story-copy">
-								<p class="story-topic">
-									{item.topic}
-									{#if index === 0}<span> / 권장 시작점</span>{/if}
-								</p>
-								<h3 id={`story-title-${item.slug}`}>{item.title}</h3>
-								<p class="story-description" id={`story-description-${item.slug}`}>
-									{item.description}
-								</p>
+					</button>
+				{/each}
+			</nav>
+			<div class="search">
+				<label for="notebook-search">검색</label>
+				<input
+					id="notebook-search"
+					type="search"
+					bind:value={query}
+					oninput={saveFilters}
+					placeholder="제목, 기술 이름으로 찾기"
+					autocomplete="off"
+				/>
+			</div>
+		</div>
+
+		{#if !query.trim() && kind === 'all' && featured}
+			<section class="featured" aria-labelledby="featured-title">
+				<div class="feature-heading">
+					<h2 id="featured-title">먼저 읽어볼 글</h2>
+					<span>{series}</span>
+				</div>
+				<div class="feature-stage">
+					<div class="feature-copy" data-kind={featured.preview}>
+						<div class="feature-meta">
+							<span class="feature-area">{featured.areas[0].toUpperCase()}</span><span
+								>{labels[featured.kind]}</span
+							><span>{featured.readingTime}</span>
+						</div>
+						{#key featured.id}
+							<div class="copy-transition">
+								<h3><a href={featured.href}>{featured.title}</a></h3>
+								<p class="feature-description">{featured.description}</p>
+								<p class="feature-author">{featured.authorLabel}</p>
+								<a class="read-link" href={featured.href} aria-label={`${featured.title} 읽기`}
+									>글 읽기 <span aria-hidden="true">↗</span></a
+								>
 							</div>
-							<div class="story-meta" id={`story-meta-${item.slug}`}>
-								<span>{item.actCount}개 Act</span>
-								<span>{item.readingTime}</span>
-								<span class="story-read">글 읽기</span>
-							</div>
+						{/key}
+					</div>
+					<div class="feature-visual">
+						<FlowPreview kind={featured.preview} paused={preferences.motionOff} />
+					</div>
+				</div>
+				<div
+					class="feature-choices"
+					style={`--choice-count: ${featuredEntries.length}`}
+					aria-label="대표 글 미리보기"
+				>
+					{#each featuredEntries as entry (entry.id)}
+						<a
+							href={entry.href}
+							class:selected={entry.id === featured.id}
+							onmouseenter={() => (selectedId = entry.id)}
+							onfocus={() => (selectedId = entry.id)}
+						>
+							<span class="choice-domain">{entry.areas[0].toUpperCase()}</span>
+							<span class="choice-title"
+								>{entry.preview === 'pipeline'
+									? 'Commit에서 Cluster까지'
+									: entry.preview === 'tls'
+										? 'TLS 1.3의 동작 과정'
+										: 'API 응답으로 조건 확인하기'}</span
+							>
+							<span class="choice-arrow" aria-hidden="true">↗</span>
 						</a>
 					{/each}
 				</div>
 			</section>
-
-			<section class="archive" aria-labelledby="archive-title">
-				<div>
-					<p class="archive-label">{notebook.archive.label}</p>
-					<h2 id="archive-title">{notebook.archive.title}</h2>
-				</div>
-				<div class="archive-copy">
-					<p>{notebook.archive.description}</p>
-					<a href={notebook.archive.href} target="_blank" rel="noopener noreferrer">
-						{notebook.archive.cta}<span class="sr-only">, 새 창에서 열림</span>
-					</a>
-				</div>
-			</section>
 		{/if}
-	</main>
 
-	<footer class="notebook-footer">
-		<div class="notebook-footer__inner">
-			<span>HONG BEOM JOO</span>
-			<span>Systems / Security / Operations</span>
-		</div>
-	</footer>
-</div>
+		<section class="archive" aria-labelledby="archive-title">
+			<div class="archive-heading">
+				<h2 id="archive-title">
+					{query.trim() ? '검색 결과' : '전체 기록'} <span>{results.length}</span>
+				</h2>
+				<div class="kind-filters" role="group" aria-label="글의 성격">
+					<button
+						type="button"
+						class:active={kind === 'all'}
+						aria-pressed={kind === 'all'}
+						onclick={() => {
+							kind = 'all';
+							saveFilters();
+						}}>모든 글</button
+					>
+					{#each availableKinds as value (value)}
+						<button
+							type="button"
+							class:active={kind === value}
+							aria-pressed={kind === value}
+							onclick={() => {
+								kind = value;
+								saveFilters();
+							}}>{labels[value]}</button
+						>
+					{/each}
+				</div>
+			</div>
+			<p class="results-announcement" role="status" aria-live="polite">
+				{results.length}개의 글이 있습니다.
+			</p>
+			{#if results.length}
+				<div class="entry-grid">
+					{#each results as entry (entry.id)}
+						<article class="entry" data-entry-id={entry.id}>
+							<div class="entry-meta">
+								<span class="entry-area"
+									>{entry.areas.map((value) => value.toUpperCase()).join(' / ')}</span
+								>
+								<span>{labels[entry.kind]}</span>
+								{#if entry.format === 'story'}<span class="format-indicator">인터랙티브</span>{/if}
+								<span class="entry-time">{entry.readingTime}</span>
+							</div>
+							<h3>
+								<a href={entry.href}
+									>{entry.title}<span class="entry-arrow" aria-hidden="true">↗</span></a
+								>
+							</h3>
+							<p>{entry.description}</p>
+							<div class="entry-footer">
+								<span>{entry.authorLabel}</span><span>{entry.series}</span>
+							</div>
+						</article>
+					{/each}
+				</div>
+			{:else}
+				<div class="empty-state">
+					<h3>
+						{kind === 'experiment'
+							? '아직 공개한 직접 실험 기록이 없습니다.'
+							: '조건에 맞는 글이 없습니다.'}
+					</h3>
+					<p>다른 기술 이름으로 검색하거나 선택한 분류를 해제해 보세요.</p>
+					<button type="button" onclick={reset}
+						>전체 글 보기 <span aria-hidden="true">↗</span></button
+					>
+				</div>
+			{/if}
+			<p class="provenance-note">
+				<span>자료 정리</span> 표시는 HPE 엔지니어의 작업 자료를 바탕으로 정리한 글입니다. 직접 수행한
+				실험과 구분해 기록합니다.
+			</p>
+		</section>
+	{/if}
+</main>
 
 <style>
-	:global(body) {
-		background: var(--surface);
-	}
-
-	.notebook-shell {
-		--accent: #ff5500;
-		min-height: 100dvh;
-		background: var(--surface);
-		color: var(--ink);
-		font-family: var(--font-body);
-	}
-
-	.skip-link {
-		position: fixed;
-		top: 1rem;
-		left: 1rem;
-		z-index: 100;
-		transform: translateY(-200%);
-		border: 1px solid var(--accent);
-		background: var(--surface);
-		padding: 0.75rem 1rem;
-		color: var(--accent);
-		text-decoration: none;
-	}
-
-	.skip-link:focus {
-		transform: translateY(0);
-	}
-
-	.notebook-header {
-		position: sticky;
-		top: 0;
-		z-index: 30;
-		border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
-		background: color-mix(in srgb, var(--surface) 92%, transparent);
-		backdrop-filter: blur(12px);
-	}
-
-	.notebook-header__inner,
-	main,
-	.notebook-footer__inner {
-		box-sizing: border-box;
-		width: min(100%, 78rem);
-		margin: 0 auto;
-		padding-inline: clamp(1.5rem, 4.5vw, 4rem);
-	}
-
-	.notebook-header__inner {
-		display: grid;
-		min-height: 4.5rem;
-		grid-template-columns: auto 1fr auto;
-		align-items: center;
-		gap: 1.5rem;
-	}
-
-	.notebook-brand,
-	.notebook-context,
-	.notebook-nav,
-	.locale-switch {
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-	}
-
-	.notebook-brand {
-		color: var(--ink-strong);
-		font-family: var(--font-display);
-		font-weight: 700;
-		letter-spacing: 0.04em;
-		text-decoration: none;
-	}
-
-	.notebook-context {
-		border-left: 1px solid var(--line);
-		padding-left: 1.5rem;
-		color: var(--ink-soft);
-	}
-
-	.notebook-nav,
-	.locale-switch {
-		display: flex;
-		align-items: center;
-	}
-
-	.notebook-nav {
-		gap: 1.25rem;
-	}
-
-	.locale-switch {
-		gap: 0.5rem;
-	}
-
-	.notebook-nav a {
-		color: var(--ink-soft);
-		text-decoration: none;
-		transition: color 160ms ease;
-	}
-
-	.notebook-nav a:hover,
-	.notebook-nav a:focus-visible,
-	.notebook-nav a[aria-current='page'] {
-		color: var(--accent);
-	}
-
-	.nav-separator {
-		width: 1px;
-		height: 1rem;
-		background: var(--line);
-	}
-
-	main:focus {
+	.notebook-main {
+		max-width: 1440px;
+		margin: auto;
+		padding: 0 clamp(22px, 5vw, 80px);
 		outline: none;
 	}
-
-	.notebook-hero {
-		display: flex;
-		min-height: clamp(32rem, 64vh, 38rem);
-		box-sizing: border-box;
-		flex-direction: column;
-		justify-content: space-between;
-		border-bottom: 1px solid var(--line);
-		padding-block: clamp(5rem, 9vw, 8rem) clamp(4rem, 7vw, 6rem);
+	.intro {
+		padding: 68px 0 46px;
 	}
-
-	.hero-kicker,
-	.story-topic,
-	.series-count,
-	.archive-label {
-		margin: 0;
-		color: var(--ink-soft);
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-	}
-
-	.notebook-hero h1 {
-		max-width: 15ch;
-		margin: 4rem 0;
-		color: var(--ink-strong);
+	h1 {
+		color: var(--nb-text);
 		font-family: var(--font-display);
-		font-size: clamp(3.25rem, 5.2vw, 4.75rem);
-		font-weight: 800;
-		line-height: 1.02;
-		letter-spacing: -0.045em;
-		white-space: pre-line;
-		text-wrap: balance;
-		word-break: keep-all;
-	}
-
-	.hero-footer {
-		display: grid;
-		grid-template-columns: minmax(0, 44rem) auto;
-		align-items: end;
-		justify-content: space-between;
-		gap: 3rem;
-	}
-
-	.hero-footer p,
-	.series-intro > div > p,
-	.story-description,
-	.archive-copy > p,
-	.coming-soon > p {
-		color: var(--ink-soft);
-		line-height: 1.75;
-		word-break: keep-all;
-	}
-
-	.hero-footer p {
+		font-size: clamp(38px, 5.2vw, 74px);
+		line-height: 1.1;
+		letter-spacing: -0.065em;
+		font-weight: 500;
 		margin: 0;
-		font-size: clamp(1rem, 1.4vw, 1.125rem);
 	}
-
-	.hero-footer a,
-	.archive-copy a,
-	.coming-soon a {
-		width: fit-content;
-		border-bottom: 1px solid var(--accent);
-		padding-bottom: 0.3rem;
-		color: var(--accent);
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		letter-spacing: 0.06em;
-		text-decoration: none;
+	h1 > span {
+		color: var(--nb-accent);
+	}
+	.intro > p {
+		margin: 23px 0 0;
+		color: var(--nb-muted);
+		font-size: clamp(15px, 1.4vw, 18px);
+		line-height: 1.7;
+		letter-spacing: -0.025em;
+	}
+	.mobile-break {
+		display: none;
+	}
+	.explore-bar {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 22px;
+		border-block: 1px solid var(--nb-line);
+		min-height: 66px;
+	}
+	.area-filters {
+		display: flex;
+		gap: 28px;
+		align-self: stretch;
+	}
+	.area-filters button {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		position: relative;
+		border: 0;
+		padding: 0;
+		background: transparent;
+		color: var(--nb-muted);
+		font: 15px var(--font-body);
+		cursor: pointer;
+	}
+	.area-filters button.active {
+		color: var(--nb-text);
+	}
+	.area-filters button::after {
+		content: '';
+		position: absolute;
+		bottom: -1px;
+		left: 0;
+		width: 100%;
+		height: 2px;
+		background: var(--nb-accent);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 240ms ease;
+	}
+	.area-filters button.active::after {
+		transform: scaleX(1);
+	}
+	.area-detail {
+		font-size: 12px;
+	}
+	.area-count {
+		font: 10px var(--font-mono);
+		align-self: center;
+		margin-left: 0;
+		color: var(--nb-muted);
+	}
+	.active .area-count {
+		color: var(--nb-accent);
+	}
+	.search {
+		display: flex;
+		align-items: center;
+		gap: 13px;
+		min-width: 220px;
+		max-width: 280px;
+		border-bottom: 1px solid transparent;
+	}
+	.search:focus-within {
+		border-color: var(--nb-accent);
+	}
+	.search label {
+		font-size: 12px;
+		color: var(--nb-muted);
 		white-space: nowrap;
 	}
-
-	.series {
-		scroll-margin-top: 5rem;
-		padding-block: clamp(5rem, 8vw, 7rem) clamp(6rem, 10vw, 9rem);
+	.search input {
+		background: none;
+		border: 0;
+		min-width: 0;
+		width: 100%;
+		color: var(--nb-text);
+		font: 13px var(--font-body);
+		padding: 12px 0;
 	}
-
-	.series-intro {
-		display: grid;
-		grid-template-columns: minmax(0, 44rem) auto;
-		align-items: end;
-		justify-content: space-between;
-		gap: 3rem;
-		margin-bottom: clamp(3rem, 6vw, 5rem);
+	.search input:focus-visible {
+		outline: 0;
 	}
-
-	.series-intro h2,
-	.archive h2,
-	.coming-soon h2 {
-		margin: 0;
-		color: var(--ink-strong);
-		font-family: var(--font-display);
-		font-size: clamp(2.4rem, 4vw, 3.5rem);
-		font-weight: 700;
-		line-height: 1.05;
-		letter-spacing: -0.035em;
-		text-wrap: balance;
+	.search input::placeholder {
+		color: var(--nb-muted);
+		opacity: 0.9;
 	}
-
-	.series-intro > div > p {
-		max-width: 42rem;
-		margin: 1.5rem 0 0;
+	.featured {
+		padding-top: 35px;
 	}
-
-	.series-count {
-		padding-bottom: 0.35rem;
-		color: var(--ink-soft);
-		white-space: nowrap;
-	}
-
-	.story-list {
-		border-top: 1px solid var(--line);
-	}
-
-	.story-row {
-		display: grid;
-		min-height: 13rem;
-		box-sizing: border-box;
-		grid-template-columns: 4.5rem minmax(0, 1fr) 10rem;
-		align-items: start;
-		gap: clamp(1.5rem, 3vw, 3rem);
-		border-bottom: 1px solid var(--line);
-		padding-block: clamp(2rem, 4vw, 2.75rem);
-		color: inherit;
-		text-decoration: none;
-		transition:
-			border-color 180ms ease,
-			background-color 180ms ease;
-	}
-
-	.story-row:hover,
-	.story-row:focus-visible {
-		border-bottom-color: var(--accent);
-		background: color-mix(in srgb, var(--surface-raised) 38%, transparent);
-	}
-
-	.story-row:focus-visible,
-	.hero-footer a:focus-visible,
-	.archive-copy a:focus-visible,
-	.coming-soon a:focus-visible,
-	.notebook-brand:focus-visible,
-	.notebook-nav a:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 5px;
-	}
-
-	.story-index {
-		color: var(--ink-soft);
-		font-family: var(--font-mono);
-		font-size: 0.82rem;
-		letter-spacing: 0.08em;
-		transition: color 180ms ease;
-	}
-
-	.story-row:hover .story-index,
-	.story-row:focus-visible .story-index,
-	.story-row:hover .story-read,
-	.story-row:focus-visible .story-read {
-		color: var(--accent);
-	}
-
-	.story-topic {
-		color: var(--ink-soft);
-	}
-
-	.story-topic span {
-		color: var(--accent);
-	}
-
-	.story-copy h3 {
-		max-width: 28ch;
-		margin: 1rem 0 0;
-		color: var(--ink-strong);
-		font-family: var(--font-display);
-		font-size: clamp(1.8rem, 3.1vw, 2.55rem);
-		font-weight: 700;
-		line-height: 1.12;
-		letter-spacing: -0.035em;
-		text-wrap: balance;
-		word-break: keep-all;
-	}
-
-	.story-description {
-		max-width: 48rem;
-		margin: 1.25rem 0 0;
-		font-size: 0.98rem;
-	}
-
-	.story-meta {
+	.feature-heading {
 		display: flex;
-		min-height: 100%;
-		flex-direction: column;
-		align-items: flex-end;
-		gap: 0.45rem;
-		color: var(--ink-soft);
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		letter-spacing: 0.06em;
-		white-space: nowrap;
-	}
-
-	.story-read {
-		margin-top: auto;
-		color: var(--ink-strong);
-		transition: color 180ms ease;
-	}
-
-	.archive {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.9fr);
-		gap: clamp(3rem, 8vw, 7rem);
-		border-top: 1px solid var(--line);
-		padding-block: clamp(4rem, 7vw, 6rem);
-	}
-
-	.archive-label {
-		margin-bottom: 1rem;
-		color: var(--accent);
-	}
-
-	.archive h2 {
-		max-width: 16ch;
-		font-size: clamp(2rem, 3.5vw, 3rem);
-	}
-
-	.archive-copy {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 2rem;
-	}
-
-	.archive-copy > p {
-		margin: 0;
-	}
-
-	.coming-soon {
-		display: grid;
-		min-height: 34rem;
-		gap: 2rem;
-		align-content: center;
-		border-bottom: 1px solid var(--line);
-	}
-
-	.coming-soon h2,
-	.coming-soon p {
-		max-width: 42rem;
-		margin: 0;
-	}
-
-	.notebook-footer {
-		border-top: 1px solid var(--line);
-	}
-
-	.notebook-footer__inner {
-		display: flex;
-		min-height: 5rem;
 		align-items: center;
 		justify-content: space-between;
-		gap: 2rem;
-		color: var(--ink-soft);
-		font-family: var(--font-mono);
-		font-size: 0.75rem;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
+		gap: 15px;
 	}
-
-	@media (max-width: 760px) {
-		.notebook-header__inner {
-			grid-template-columns: 1fr auto;
-			gap: 1rem;
+	.feature-heading h2 {
+		margin: 0;
+		font-size: 13px;
+		font-weight: 500;
+		color: var(--nb-muted);
+	}
+	.feature-heading > span {
+		font-size: 12px;
+		color: var(--nb-muted);
+	}
+	.feature-stage {
+		display: grid;
+		grid-template-columns: 0.95fr 1.18fr;
+		gap: 46px;
+		align-items: center;
+		min-height: 386px;
+		padding-block: 22px;
+	}
+	.feature-meta {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		color: var(--nb-muted);
+		font-size: 12px;
+		margin-bottom: 20px;
+	}
+	.feature-area {
+		color: var(--nb-accent);
+		font: 12px var(--font-mono);
+	}
+	.feature-copy h3 {
+		margin: 0;
+		max-width: 22ch;
+		font-size: clamp(26px, 2.6vw, 36px);
+		line-height: 1.35;
+		font-weight: 600;
+		letter-spacing: -0.045em;
+		word-break: keep-all;
+	}
+	.feature-copy h3 a {
+		color: var(--nb-text);
+		text-decoration: none;
+	}
+	.feature-description {
+		font-size: 15px;
+		line-height: 1.85;
+		margin: 20px 0 0;
+		color: var(--nb-muted);
+		max-width: 48ch;
+		word-break: keep-all;
+	}
+	.feature-author {
+		font-size: 12px;
+		color: var(--nb-muted);
+		margin: 17px 0 25px;
+	}
+	.read-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 35px;
+		font-size: 13px;
+		font-weight: 600;
+		padding: 10px 0;
+		border-bottom: 1px solid var(--nb-accent);
+		color: var(--nb-accent);
+		text-decoration: none;
+	}
+	.read-link > span {
+		font-size: 20px;
+		transition: transform 200ms;
+	}
+	.read-link:hover > span {
+		transform: translate(3px, -3px);
+	}
+	.feature-visual {
+		min-width: 0;
+		width: 100%;
+	}
+	.feature-choices {
+		display: grid;
+		grid-template-columns: repeat(var(--choice-count, 3), minmax(0, 1fr));
+		gap: 1px;
+		border-block: 1px solid var(--nb-line);
+	}
+	.feature-choices a {
+		text-decoration: none;
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 13px;
+		min-height: 74px;
+		background: none;
+		border: 0;
+		padding: 16px 23px;
+		text-align: left;
+		cursor: pointer;
+		color: var(--nb-muted);
+		transition:
+			background 240ms,
+			color 240ms;
+	}
+	.feature-choices a:first-child {
+		padding-left: 0;
+	}
+	.feature-choices a + a {
+		border-left: 1px solid var(--nb-line);
+	}
+	.feature-choices a::before {
+		position: absolute;
+		content: '';
+		top: -1px;
+		left: 0;
+		right: 0;
+		height: 2px;
+		background: var(--nb-accent);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 300ms;
+	}
+	.feature-choices a.selected::before {
+		transform: scaleX(1);
+	}
+	.feature-choices a.selected {
+		color: var(--nb-text);
+	}
+	.feature-choices a:hover {
+		background: color-mix(in srgb, var(--nb-text) 3%, transparent);
+	}
+	.choice-domain {
+		font: 10px var(--font-mono);
+		color: var(--nb-muted);
+	}
+	.selected .choice-domain {
+		color: var(--nb-accent);
+	}
+	.choice-title {
+		font-size: 13px;
+		word-break: keep-all;
+	}
+	.choice-arrow {
+		margin-left: auto;
+	}
+	.archive {
+		padding: 64px 0 70px;
+		scroll-margin-top: 30px;
+	}
+	.archive-heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 23px;
+	}
+	.archive-heading h2 {
+		display: flex;
+		gap: 12px;
+		align-items: baseline;
+		margin: 0;
+		font-size: 21px;
+		font-weight: 500;
+		letter-spacing: -0.035em;
+	}
+	.archive-heading h2 span {
+		color: var(--nb-muted);
+		font: 12px var(--font-mono);
+	}
+	.kind-filters {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.kind-filters button {
+		border: 1px solid transparent;
+		border-radius: 3px;
+		padding: 7px 10px;
+		background: transparent;
+		color: var(--nb-muted);
+		font: 12px var(--font-body);
+		cursor: pointer;
+	}
+	.kind-filters .active {
+		border-color: var(--nb-line);
+		color: var(--nb-text);
+		background: var(--nb-panel);
+	}
+	.results-announcement {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+	.entry-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 18px;
+	}
+	.entry {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		border: 1px solid var(--nb-line);
+		border-radius: 4px;
+		padding: 26px 28px 23px;
+		background: var(--nb-bg);
+		transition:
+			border-color 220ms,
+			background 220ms,
+			transform 220ms;
+	}
+	.entry:hover,
+	.entry:focus-within {
+		border-color: color-mix(in srgb, var(--nb-accent) 60%, var(--nb-line));
+		background: var(--nb-panel);
+		transform: translateY(-3px);
+	}
+	.entry-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 13px;
+		align-items: center;
+		color: var(--nb-muted);
+		font-size: 11px;
+	}
+	.entry-area {
+		font-family: var(--font-mono);
+		color: var(--nb-accent);
+	}
+	.entry-time {
+		margin-left: auto;
+	}
+	.format-indicator {
+		color: var(--nb-muted);
+	}
+	.entry h3 {
+		font-size: 20px;
+		line-height: 1.5;
+		font-weight: 500;
+		margin: 18px 0 0;
+		letter-spacing: -0.035em;
+		word-break: keep-all;
+	}
+	.entry h3 a {
+		color: var(--nb-text);
+		text-decoration: none;
+		display: flex;
+		gap: 17px;
+		justify-content: space-between;
+		align-items: start;
+	}
+	.entry-arrow {
+		font-size: 18px;
+		flex: 0 0 auto;
+		color: var(--nb-muted);
+		transition:
+			transform 220ms,
+			color 220ms;
+	}
+	.entry:hover .entry-arrow {
+		color: var(--nb-accent);
+		transform: translate(2px, -2px);
+	}
+	.entry > p {
+		color: var(--nb-muted);
+		font-size: 13px;
+		line-height: 1.85;
+		margin: 12px 25px 24px 0;
+		word-break: keep-all;
+	}
+	.entry-footer {
+		margin-top: auto;
+		display: flex;
+		justify-content: space-between;
+		gap: 14px;
+		color: var(--nb-muted);
+		font-size: 11px;
+	}
+	.provenance-note {
+		color: var(--nb-muted);
+		font-size: 12px;
+		line-height: 1.9;
+		max-width: 70ch;
+		margin: 30px 0 0;
+	}
+	.provenance-note span {
+		color: var(--nb-text);
+	}
+	.empty-state {
+		padding: 65px 20px;
+		border-block: 1px solid var(--nb-line);
+		text-align: center;
+	}
+	.empty-state h3 {
+		font-size: 21px;
+		font-weight: 500;
+	}
+	.empty-state p {
+		color: var(--nb-muted);
+		font-size: 14px;
+		margin: 12px 0 25px;
+	}
+	.empty-state button {
+		border: 0;
+		background: none;
+		color: var(--nb-accent);
+		cursor: pointer;
+		font: 14px var(--font-body);
+	}
+	.edition {
+		min-height: 65dvh;
+		padding: 100px 0;
+	}
+	.edition p {
+		color: var(--nb-muted);
+		margin: 28px 0;
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.copy-transition {
+			animation: copy-in 350ms cubic-bezier(0.16, 1, 0.3, 1);
 		}
-
-		.notebook-context,
-		.portfolio-link,
-		.nav-separator {
+		@keyframes copy-in {
+			from {
+				opacity: 0.35;
+				transform: translateY(8px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+	}
+	@media (min-width: 1500px) {
+		.feature-stage {
+			min-height: 414px;
+		}
+	}
+	@media (max-width: 1050px) {
+		.area-detail {
 			display: none;
 		}
-
-		.notebook-hero {
-			min-height: 30rem;
-			padding-block: 4.5rem 3.5rem;
+		.area-filters {
+			gap: 25px;
 		}
-
-		.notebook-hero h1 {
-			max-width: 13ch;
-			margin-block: 3rem;
-			font-size: clamp(2.6rem, 10.5vw, 3.25rem);
-			line-height: 1.04;
+		.feature-stage {
+			gap: 24px;
+			grid-template-columns: 1fr 1.1fr;
 		}
-
-		.hero-footer,
-		.series-intro,
-		.archive {
-			grid-template-columns: 1fr;
+		.feature-copy h3 {
+			font-size: 28px;
 		}
-
-		.hero-footer {
-			align-items: start;
-			gap: 2rem;
+		.feature-choices a {
+			padding-inline: 15px;
+			gap: 9px;
 		}
-
-		.series {
-			padding-block: 4.5rem 6rem;
-		}
-
-		.series-intro {
-			align-items: start;
-			gap: 1.5rem;
-			margin-bottom: 3rem;
-		}
-
-		.series-count {
-			padding: 0;
-		}
-
-		.story-row {
-			min-height: 0;
-			grid-template-columns: 2.25rem minmax(0, 1fr);
-			gap: 1rem;
-			padding-block: 2rem;
-		}
-
-		.story-copy h3 {
-			margin-top: 0.75rem;
-			font-size: clamp(1.65rem, 7vw, 2rem);
-		}
-
-		.story-description {
-			font-size: 0.94rem;
-		}
-
-		.story-meta {
-			grid-column: 2;
-			min-height: 0;
-			flex-direction: row;
-			align-items: center;
-			gap: 0.75rem;
-			margin-top: 0.25rem;
-		}
-
-		.story-read {
-			margin: 0 0 0 auto;
-		}
-
-		.archive {
-			gap: 2rem;
-			padding-block: 4rem;
-		}
-
-		.notebook-footer__inner {
-			min-height: 6rem;
-			flex-direction: column;
-			align-items: flex-start;
-			justify-content: center;
-			gap: 0.45rem;
+		.choice-title {
+			font-size: 12px;
 		}
 	}
-
-	@media (prefers-reduced-motion: reduce) {
-		:global(html) {
-			scroll-behavior: auto;
+	@media (max-width: 760px) {
+		.intro {
+			padding: 43px 0 32px;
 		}
-
-		.story-row,
-		.story-index,
-		.story-read,
-		.notebook-nav a {
+		h1 {
+			font-size: clamp(32px, 7.5vw, 49px);
+			letter-spacing: -0.055em;
+		}
+		.intro > p {
+			font-size: 14px;
+			margin-top: 17px;
+		}
+		.explore-bar {
+			flex-wrap: wrap;
+			gap: 0;
+			padding-top: 3px;
+		}
+		.area-filters {
+			width: 100%;
+			height: 53px;
+			gap: 28px;
+		}
+		.area-detail {
+			display: inline;
+			font-size: 10px;
+		}
+		.search {
+			width: 100%;
+			max-width: none;
+			border-top: 1px solid var(--nb-line);
+			padding-block: 3px;
+		}
+		.featured {
+			padding-top: 25px;
+		}
+		.feature-heading > span {
+			display: none;
+		}
+		.feature-stage {
+			grid-template-columns: 1fr;
+			gap: 3px;
+			padding-block: 25px 17px;
+			min-height: auto;
+		}
+		.feature-copy h3 {
+			font-size: 26px;
+			max-width: 100%;
+		}
+		.feature-meta {
+			margin-bottom: 14px;
+		}
+		.feature-description {
+			font-size: 14px;
+			margin-top: 15px;
+			max-width: none;
+		}
+		.feature-author {
+			margin: 12px 0 15px;
+		}
+		.feature-visual {
+			max-width: 550px;
+			margin: auto;
+		}
+		.feature-choices {
+			grid-template-columns: 1fr;
+		}
+		.feature-choices a {
+			min-height: 55px;
+			padding: 12px 0;
+		}
+		.feature-choices a + a {
+			border-left: 0;
+			border-top: 1px solid var(--nb-line);
+		}
+		.choice-title {
+			font-size: 13px;
+		}
+		.archive {
+			padding: 43px 0 45px;
+		}
+		.archive-heading {
+			align-items: start;
+			flex-wrap: wrap;
+		}
+		.archive-heading h2 {
+			font-size: 20px;
+		}
+		.entry-grid {
+			grid-template-columns: 1fr;
+			gap: 12px;
+		}
+		.entry {
+			padding: 23px 22px;
+		}
+		.entry h3 {
+			font-size: 19px;
+		}
+		.entry > p {
+			margin-right: 0;
+		}
+		.kind-filters {
+			gap: 0;
+		}
+		.kind-filters button {
+			padding: 6px 8px;
+		}
+		.provenance-note {
+			font-size: 11px;
+		}
+	}
+	@media (max-width: 400px) {
+		.mobile-break {
+			display: initial;
+		}
+		.area-filters {
+			gap: 20px;
+		}
+		.area-detail {
+			display: none;
+		}
+		.feature-copy h3 {
+			font-size: 24px;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.entry,
+		.entry-arrow,
+		.read-link > span,
+		.area-filters button::after,
+		.feature-choices a,
+		.feature-choices a::before {
 			transition: none;
+		}
+		.entry:hover,
+		.entry:focus-within {
+			transform: none;
 		}
 	}
 </style>

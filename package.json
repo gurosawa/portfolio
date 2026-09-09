@@ -28,6 +28,7 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.19.0",
 		"globals": "^17.6.0",
+		"mermaid": "^11.16.0",
 		"prettier": "^3.8.3",
 		"prettier-plugin-svelte": "^4.1.0",
 		"prettier-plugin-tailwindcss": "^0.8.0",
@@ -40,6 +41,8 @@
 		"vitest": "^4.1.8"
 	},
 	"dependencies": {
+		"highlight.js": "^11.11.1",
+		"marked": "^18.0.6",
 		"three": "0.185.1",
 		"three-html-render": "0.1.2"
 	}

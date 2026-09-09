@@ -1,0 +1,2 @@
+# Preserve the exact published source snapshot on Windows and Linux alike.
+src/lib/notebook/ops/snapshot.json -text
