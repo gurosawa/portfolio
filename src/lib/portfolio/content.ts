@@ -117,8 +117,7 @@ const navByLocale: Record<Locale, NavItem[]> = {
 const sharedContacts: ContactLink[] = [
 	{ label: 'Email', href: 'mailto:heterotopia@disroot.org' },
 	{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/rebewxam/' },
-	{ label: 'Soram', href: 'https://soram.vercel.app/' },
-	{ label: 'GitHub', disabled: true }
+	{ label: 'Soram', href: 'https://soram.vercel.app/' }
 ];
 
 const koWorks: WorkItem[] = [
@@ -209,7 +208,7 @@ const content: Record<Locale, HomeContent> = {
 			languageLabel: 'KO / EN'
 		},
 		hero: {
-			kicker: 'local-only portfolio MVP',
+			kicker: 'Infrastructure & AI Operations',
 			title: 'BOUNDARIES IN MOTION.',
 			surface:
 				'전통적인 인프라와 새로운 <span class="text-[#FF5500]">AI 레이어의 접점</span>,\n그 경계에서 무작정 빌드해 보는 기록.',
@@ -254,7 +253,7 @@ const content: Record<Locale, HomeContent> = {
 		works: koWorks,
 		history: {
 			title: 'History',
-			description: 'This section is a factual anchor. Do not force inner-monologue copy here.',
+			description: '',
 			entries: [
 				{
 					period: '2023-2025',
@@ -301,7 +300,7 @@ const content: Record<Locale, HomeContent> = {
 		},
 		contact: {
 			title: 'Contact',
-			surface: 'Email / GitHub / LinkedIn',
+			surface: 'Email / LinkedIn',
 			inner: '이상한 아이디어일수록 답장이 빠를 수 있습니다.',
 			links: sharedContacts
 		}
@@ -320,7 +319,7 @@ const content: Record<Locale, HomeContent> = {
 			languageLabel: 'KO / EN'
 		},
 		hero: {
-			kicker: 'local-only portfolio MVP',
+			kicker: 'Infrastructure & AI Operations',
 			title: 'BOUNDARIES IN MOTION.',
 			surface:
 				'The intersection of traditional infrastructure and the new <span class="text-[#FF5500]">AI layer</span>,\nbuilding blindly at that boundary.',
@@ -365,7 +364,7 @@ const content: Record<Locale, HomeContent> = {
 		works: enWorks,
 		history: {
 			title: 'History',
-			description: 'This section is a factual.',
+			description: '',
 			entries: [
 				{
 					period: '2023-2025',
@@ -412,7 +411,7 @@ const content: Record<Locale, HomeContent> = {
 		},
 		contact: {
 			title: 'Contact',
-			surface: 'Email / GitHub / LinkedIn',
+			surface: 'Email / LinkedIn',
 			inner: 'The stranger the idea, the faster I might reply.',
 			links: sharedContacts
 		}
