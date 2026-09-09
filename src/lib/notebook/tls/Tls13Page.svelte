@@ -96,6 +96,35 @@
 
 	onMount(() => {
 		let disposed = false;
+		let readerInteracted = false;
+		const entryUrl = window.location.href;
+		const markInteraction = () => {
+			readerInteracted = true;
+		};
+		const stopWatching = () => {
+			window.removeEventListener('wheel', markInteraction);
+			window.removeEventListener('pointerdown', markInteraction);
+			window.removeEventListener('keydown', markInteraction);
+		};
+		window.addEventListener('wheel', markInteraction, { passive: true });
+		window.addEventListener('pointerdown', markInteraction, { passive: true });
+		window.addEventListener('keydown', markInteraction);
+		const restoreEntryPosition = async () => {
+			await tick();
+			stopWatching();
+			if (disposed || readerInteracted || window.location.href !== entryUrl) return;
+			const url = new URL(entryUrl);
+			if (url.searchParams.has('deep')) {
+				syncDeepLink();
+			} else if (url.hash) {
+				try {
+					document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView();
+				} catch {
+					/* An invalid fragment must not interrupt reading. */
+				}
+			}
+			scrollModule?.ScrollTrigger.refresh();
+		};
 		const size = matchMedia('(min-width: 1050px) and (min-height: 650px)');
 		const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 		const sync = () => {
@@ -113,12 +142,15 @@
 				if (disposed) return;
 				gsap.registerPlugin(module.ScrollTrigger);
 				scrollModule = module;
+				void restoreEntryPosition();
 			})
 			.catch(() => {
 				/* The complete reading layout remains available without animation. */
+				void restoreEntryPosition();
 			});
 		return () => {
 			disposed = true;
+			stopWatching();
 			size.removeEventListener('change', sync);
 			reduced.removeEventListener('change', sync);
 			window.removeEventListener('popstate', syncDeepLink);
