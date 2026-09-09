@@ -19,10 +19,10 @@
 		})
 	);
 	const backLabel = $derived(locale === 'ko' ? '홈으로 돌아가기' : 'Back to homepage');
-	const placeholder = $derived(
+	const publicationNote = $derived(
 		locale === 'ko'
-			? '이 작업 페이지는 로컬 MVP용 placeholder입니다. 상세 케이스 스터디는 이후 범위에서 작성합니다.'
-			: 'This work page is a local MVP placeholder. The full case study belongs in a later scope.'
+			? '상세 작업 기록은 아직 공개하지 않았습니다.'
+			: 'The detailed write-up is not published yet.'
 	);
 </script>
 
@@ -62,7 +62,7 @@
 			{/each}
 		</div>
 
-		<p class="placeholder-note">{placeholder}</p>
+		<p class="placeholder-note">{publicationNote}</p>
 
 		<div class="work-placeholder__actions">
 			<a class="primary-link" href={workListHref}>{backLabel}</a>
