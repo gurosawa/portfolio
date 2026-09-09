@@ -3,6 +3,7 @@
 	import { onMount, tick } from 'svelte';
 	import { opsArticlePath, opsProvenance } from './catalog';
 	import type { OpsArticle } from './articles.server';
+	import ArticleDiagram from './ArticleDiagram.svelte';
 	import './reader.css';
 
 	let { article }: { article: OpsArticle } = $props();
@@ -124,7 +125,13 @@
 			</nav>
 		</aside>
 		<article class="ops-prose" bind:this={articleRoot} aria-label={article.title}>
-			{@html article.html}
+			{#each article.blocks as block (block.id)}
+				{#if block.kind === 'html'}
+					{@html block.html}
+				{:else}
+					<ArticleDiagram diagram={block.diagram} number={block.number} />
+				{/if}
+			{/each}
 			<footer class="ops-article-footer">
 				<p class="ops-footer-label">이어서 읽기</p>
 				<div class="ops-next-articles">

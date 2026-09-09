@@ -8,7 +8,7 @@ import dockerfile from 'highlight.js/lib/languages/dockerfile';
 import xml from 'highlight.js/lib/languages/xml';
 import ini from 'highlight.js/lib/languages/ini';
 import { getOpsCatalog, opsArticlePath } from './catalog';
-import staticDiagrams from './diagram-svgs.json';
+import { diagramDefinitions, type ArticleDiagramDefinition } from './diagram-definitions';
 
 hljs.registerLanguage('bash', bash);
 hljs.registerLanguage('yaml', yaml);
@@ -19,6 +19,9 @@ hljs.registerLanguage('html', xml);
 hljs.registerLanguage('toml', ini);
 
 export type ArticleHeading = { id: string; text: string; level: number };
+export type ArticleBlock =
+	| { id: string; kind: 'html'; html: string }
+	| { id: string; kind: 'diagram'; diagram: ArticleDiagramDefinition; number: number };
 
 export function escapeHtml(value: string) {
 	return value.replace(/[&<>"']/g, (character) => {
@@ -44,6 +47,7 @@ export function renderArticle(markdown: string) {
 	const headings: ArticleHeading[] = [];
 	const ids = new Map<string, number>();
 	let diagramCount = 0;
+	const diagrams: ArticleDiagramDefinition[] = [];
 	const renderer = new Renderer();
 
 	// The source is editorial Markdown, not executable HTML. Escape raw tags on both server and client.
@@ -78,16 +82,13 @@ export function renderArticle(markdown: string) {
 		const language = lang.split(/\s/)[0];
 		if (language === 'mermaid') {
 			diagramCount += 1;
-			const diagram = staticDiagrams.find((entry) => entry.source === text);
+			const diagram = diagramDefinitions.find((entry) => entry.source === text);
 			if (!diagram)
 				throw new Error(
-					'A Mermaid source changed. Regenerate the checked-in static diagrams before publishing.'
+					'A Mermaid source changed. Update its reviewed animation definition before publishing.'
 				);
-			const viewBoxWidth = Number(diagram.svg.match(/\bviewBox="([^"]+)"/)?.[1].split(/\s+/)[2]);
-			if (!Number.isFinite(viewBoxWidth) || viewBoxWidth <= 0)
-				throw new Error('A diagram needs a valid SVG viewBox.');
-			const minimumWidth = Math.ceil(viewBoxWidth * 0.9);
-			return `<figure class="ops-diagram" data-diagram="${diagramCount}" data-ready="true"><figcaption>흐름도 ${String(diagramCount).padStart(2, '0')}<span class="ops-diagram-hint">넓은 도식은 좌우로 스크롤해 읽을 수 있습니다.</span></figcaption><div class="ops-diagram-visual" role="region" tabindex="0" aria-label="본문 흐름도 ${diagramCount}. 가로로 스크롤할 수 있습니다." style="--diagram-min-width: ${minimumWidth}px">${diagram.svg}</div><details class="ops-diagram-source"><summary>도식 원문</summary><pre><code>${escapeHtml(text)}</code></pre></details></figure>`;
+			diagrams.push(diagram);
+			return `<!--OPS-DIAGRAM:${diagramCount - 1}-->`;
 		}
 		const highlighted = hljs.getLanguage(language)
 			? hljs.highlight(text, { language, ignoreIllegals: true }).value
@@ -99,5 +100,23 @@ export function renderArticle(markdown: string) {
 		return `<div class="ops-table" role="region" aria-label="가로로 스크롤할 수 있는 표" tabindex="0">${defaultTable.call(this, token)}</div>`;
 	};
 	const marked = new Marked({ gfm: true, breaks: false, renderer, async: false });
-	return { html: marked.parse(markdown) as string, headings, diagramCount };
+	const html = marked.parse(markdown) as string;
+	// Only renderer-generated markers are recognized: authored raw HTML is escaped above.
+	// The imported diagrams are top-level Markdown blocks; surrounding prose is left untouched.
+	const blocks: ArticleBlock[] = html.split(/(<!--OPS-DIAGRAM:\d+-->)/).flatMap((part, index) => {
+		const marker = part.match(/^<!--OPS-DIAGRAM:(\d+)-->$/);
+		if (marker) {
+			const number = Number(marker[1]);
+			return [
+				{
+					id: diagrams[number].id,
+					kind: 'diagram',
+					diagram: diagrams[number],
+					number: number + 1
+				} as ArticleBlock
+			];
+		}
+		return part.trim() ? [{ id: `prose-${index}`, kind: 'html', html: part } as ArticleBlock] : [];
+	});
+	return { blocks, headings, diagramCount };
 }

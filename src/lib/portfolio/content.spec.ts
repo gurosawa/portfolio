@@ -12,6 +12,22 @@ describe('portfolio content model', () => {
 		expect(supportedLocales).toEqual(['ko', 'en']);
 	});
 
+	it('links the shared contact footer to Credly while preserving the Soram project', () => {
+		for (const locale of supportedLocales) {
+			const content = getHomeContent(locale);
+
+			expect(content.contact.links).toContainEqual({
+				label: 'Credly',
+				href: 'https://www.credly.com/users/hongbeom-joo.427c3409'
+			});
+			expect(content.contact.links.some((link) => link.label === 'Soram')).toBe(false);
+			expect(getWork(locale, 'soram')).toMatchObject({
+				title: 'Soram',
+				externalUrl: 'https://soram.vercel.app/'
+			});
+		}
+	});
+
 	it('keeps shared English work slugs stable across locales', () => {
 		const ko = getHomeContent('ko');
 		const en = getHomeContent('en');

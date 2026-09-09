@@ -117,7 +117,7 @@ const navByLocale: Record<Locale, NavItem[]> = {
 const sharedContacts: ContactLink[] = [
 	{ label: 'Email', href: 'mailto:heterotopia@disroot.org' },
 	{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/rebewxam/' },
-	{ label: 'Soram', href: 'https://soram.vercel.app/' }
+	{ label: 'Credly', href: 'https://www.credly.com/users/hongbeom-joo.427c3409' }
 ];
 
 const koWorks: WorkItem[] = [
