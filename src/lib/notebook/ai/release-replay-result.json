@@ -1,0 +1,78 @@
+{
+	"schemaVersion": 1,
+	"kind": "deterministic-context-replay",
+	"scope": "합성 자료와 구성 ID로 입력을 조립한 실행 결과. 실제 모델을 호출하거나 가중치를 복원하지 않음.",
+	"runtime": "v24.12.0",
+	"runs": [
+		{
+			"id": "baseline",
+			"label": "기준 구성",
+			"bundle": {
+				"model": "example-model-A",
+				"prompt": "prompt-v1",
+				"index": "docs-v1",
+				"toolSchema": "schema-v1",
+				"policy": "internal-only-v1",
+				"evaluator": "rubric-v1"
+			},
+			"retrievedMinutes": 5,
+			"context": "자료에 적힌 관찰 시간을 단위와 함께 설명한다.\n질문: 예제 절차의 관찰 시간은?\n자료: example-observation-v1\n관찰 시간: 5분",
+			"contextDigest": "a45f9ec81cb92e4b8dcdf6b0194ec6feef6d087006dd820024ceddf1b5c8e722",
+			"bundleDigest": "11526159e80ec7369ba80335fc13b5f34e4a2289b0010b8e99477dc03ac06000"
+		},
+		{
+			"id": "changed",
+			"label": "변경 구성",
+			"bundle": {
+				"model": "example-model-B",
+				"prompt": "prompt-v2",
+				"index": "docs-v2",
+				"toolSchema": "schema-v1",
+				"policy": "internal-only-v1",
+				"evaluator": "rubric-v1"
+			},
+			"retrievedMinutes": 10,
+			"context": "관찰 시간과 해당 자료의 식별자를 함께 설명한다.\n질문: 예제 절차의 관찰 시간은?\n자료: example-observation-v2\n관찰 시간: 10분",
+			"contextDigest": "019cc37ad691efba0ca9c6ad676baecc03378c6c529d83083e8176e5dee191a1",
+			"bundleDigest": "bd26b36b3d0e128d87ce8708053d10ac5d529bbcab773aa07b7e0bd98e03acea"
+		},
+		{
+			"id": "model-only",
+			"label": "모델 ID만 복원",
+			"bundle": {
+				"model": "example-model-A",
+				"prompt": "prompt-v2",
+				"index": "docs-v2",
+				"toolSchema": "schema-v1",
+				"policy": "internal-only-v1",
+				"evaluator": "rubric-v1"
+			},
+			"retrievedMinutes": 10,
+			"context": "관찰 시간과 해당 자료의 식별자를 함께 설명한다.\n질문: 예제 절차의 관찰 시간은?\n자료: example-observation-v2\n관찰 시간: 10분",
+			"contextDigest": "019cc37ad691efba0ca9c6ad676baecc03378c6c529d83083e8176e5dee191a1",
+			"bundleDigest": "75e17e06e9349339810b8a038447967f849c4c44e4df2a88ca9fd7bbae2afdf3"
+		},
+		{
+			"id": "full-restore",
+			"label": "전체 구성 복원",
+			"bundle": {
+				"model": "example-model-A",
+				"prompt": "prompt-v1",
+				"index": "docs-v1",
+				"toolSchema": "schema-v1",
+				"policy": "internal-only-v1",
+				"evaluator": "rubric-v1"
+			},
+			"retrievedMinutes": 5,
+			"context": "자료에 적힌 관찰 시간을 단위와 함께 설명한다.\n질문: 예제 절차의 관찰 시간은?\n자료: example-observation-v1\n관찰 시간: 5분",
+			"contextDigest": "a45f9ec81cb92e4b8dcdf6b0194ec6feef6d087006dd820024ceddf1b5c8e722",
+			"bundleDigest": "11526159e80ec7369ba80335fc13b5f34e4a2289b0010b8e99477dc03ac06000"
+		}
+	],
+	"checks": {
+		"modelIdRestored": true,
+		"modelOnlyContextDiffers": true,
+		"fullContextRestored": true,
+		"fullBundleRestored": true
+	}
+}

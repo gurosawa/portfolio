@@ -7,7 +7,7 @@
 		routingCost,
 		percent
 	} from './calculations';
-	import replay from '../../../../static/notebook/ai/release-replay-result.json';
+	import replay from './release-replay-result.json';
 	let { kind }: { kind: AiWidget } = $props();
 	let attempts = $state(4);
 	let selection = $state(60);

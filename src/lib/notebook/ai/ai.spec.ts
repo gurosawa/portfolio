@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { aiArticles, aiArticlePath } from './catalog';
 import { getAiArticle, renderAiMarkdown, aiHref } from './articles.server';
 import { expectedCoverage, exampleModels, selectedSuccess, routingCost } from './calculations';
-import replay from '../../../../static/notebook/ai/release-replay-result.json';
+import replay from './release-replay-result.json';
 import { previewScene, previewSize } from '../components/flow-preview';
 
 describe('published AI manuscripts', () => {

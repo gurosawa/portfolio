@@ -39,7 +39,8 @@ Systems Notebook을 OPS / SEC / AI의 단일 허브로 운영한다. 별도 AI O
 구성 복원 예제만 작은 코드를 직접 실행했다.
 
 - 코드: `static/notebook/ai/release-replay.mjs`
-- 결과: `static/notebook/ai/release-replay-result.json`
+- 결과 원본: `src/lib/notebook/ai/release-replay-result.json`
+- 공개 결과: `/notebook/ai/release-replay-result.json` (같은 원본으로 정적 생성)
 - 실행: `node static/notebook/ai/release-replay.mjs`
 - 환경: Node.js v24.12.0, 추가 패키지·외부 API·실제 모델 없음.
 - 확인: 모델 ID만 복원하면 입력 문맥이 다르고, 전체 예제 구성을 복원하면 입력과 구성의 SHA-256이 기준과 같다.
