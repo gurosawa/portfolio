@@ -19,14 +19,17 @@
 	const labels = { concept: '개념 설명', reference: '자료 정리', experiment: '직접 실험' };
 	const areas = [
 		{ id: 'all', label: '전체' },
-		{ id: 'ops', label: 'Ops', detail: '인프라와 운영' },
-		{ id: 'sec', label: 'Sec', detail: '보안과 인증' }
+		{ id: 'ops', label: 'OPS', detail: '인프라와 운영' },
+		{ id: 'sec', label: 'SEC', detail: '보안과 인증' },
+		{ id: 'ai', label: 'AI', detail: '모델과 데이터' }
 	] as const;
 	const results = $derived(filterNotebook(notebook.entries, { area, kind, query }));
 	const featuredEntries = $derived(
-		notebook.featuredIds.flatMap((id) => {
-			const entry = notebook.entries.find((item) => item.id === id);
-			return entry && (area === 'all' || entry.areas.includes(area)) ? [entry] : [];
+		notebook.features.flatMap((feature) => {
+			const entry = notebook.entries.find((item) => item.id === feature.entryId);
+			return entry && (area === 'all' || feature.area === area)
+				? [{ ...entry, featureArea: feature.area, featureTitle: feature.title }]
+				: [];
 		})
 	);
 	const featured = $derived(
@@ -42,14 +45,16 @@
 			? '운영과 배포를 살펴보는 기록'
 			: area === 'sec'
 				? '연결과 데이터의 보안을 살펴보는 기록'
-				: '구성과 원리를 함께 살펴보는 기록'
+				: area === 'ai'
+					? '모델과 데이터, 학습과 활용을 살펴보는 기록'
+					: '구성과 원리를 함께 살펴보는 기록'
 	);
 
 	function syncFromUrl() {
 		const params = new URL(window.location.href).searchParams;
 		const nextArea = params.get('area');
 		const nextKind = params.get('kind');
-		area = nextArea === 'ops' || nextArea === 'sec' ? nextArea : 'all';
+		area = nextArea === 'ops' || nextArea === 'sec' || nextArea === 'ai' ? nextArea : 'all';
 		kind =
 			nextKind === 'reference' || nextKind === 'concept' || nextKind === 'experiment'
 				? nextKind
@@ -135,8 +140,11 @@
 				<input
 					id="notebook-search"
 					type="search"
-					bind:value={query}
-					oninput={saveFilters}
+					value={query}
+					oninput={(event) => {
+						query = event.currentTarget.value;
+						saveFilters();
+					}}
 					placeholder="제목, 기술 이름으로 찾기"
 					autocomplete="off"
 				/>
@@ -152,7 +160,7 @@
 				<div class="feature-stage">
 					<div class="feature-copy" data-kind={featured.preview}>
 						<div class="feature-meta">
-							<span class="feature-area">{featured.areas[0].toUpperCase()}</span><span
+							<span class="feature-area">{featured.featureArea.toUpperCase()}</span><span
 								>{labels[featured.kind]}</span
 							><span>{featured.readingTime}</span>
 						</div>
@@ -183,14 +191,8 @@
 							onmouseenter={() => (selectedId = entry.id)}
 							onfocus={() => (selectedId = entry.id)}
 						>
-							<span class="choice-domain">{entry.areas[0].toUpperCase()}</span>
-							<span class="choice-title"
-								>{entry.preview === 'pipeline'
-									? 'Commit에서 Cluster까지'
-									: entry.preview === 'tls'
-										? 'TLS 1.3의 동작 과정'
-										: 'API 응답으로 조건 확인하기'}</span
-							>
+							<span class="choice-domain">{entry.featureArea.toUpperCase()}</span>
+							<span class="choice-title">{entry.featureTitle}</span>
 							<span class="choice-arrow" aria-hidden="true">↗</span>
 						</a>
 					{/each}
@@ -267,8 +269,8 @@
 				</div>
 			{/if}
 			<p class="provenance-note">
-				<span>자료 정리</span> 표시는 HPE 엔지니어의 작업 자료를 바탕으로 정리한 글입니다. 직접 수행한
-				실험과 구분해 기록합니다.
+				<span>자료 정리</span> 표시는 외부 자료를 바탕으로 정리한 글입니다. 바탕이 된 자료는 각 글에 표시하며,
+				직접 수행한 실험과 구분해 기록합니다.
 			</p>
 		</section>
 	{/if}
@@ -785,8 +787,7 @@
 			gap: 28px;
 		}
 		.area-detail {
-			display: inline;
-			font-size: 10px;
+			display: none;
 		}
 		.search {
 			width: 100%;

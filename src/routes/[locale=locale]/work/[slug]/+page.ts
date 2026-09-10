@@ -1,7 +1,17 @@
 import { error } from '@sveltejs/kit';
-import { getHomeContent, getWork, type Locale } from '$lib/portfolio/content';
+import {
+	getHomeContent,
+	getWork,
+	supportedLocales,
+	workSlugs,
+	type Locale
+} from '$lib/portfolio/content';
+import type { EntryGenerator, PageLoad } from './$types';
 
-export function load({ params }) {
+export const entries: EntryGenerator = () =>
+	supportedLocales.flatMap((locale) => workSlugs.map((slug) => ({ locale, slug })));
+
+export const load: PageLoad = ({ params }) => {
 	const locale = params.locale as Locale;
 	const work = getWork(locale, params.slug);
 
@@ -14,4 +24,4 @@ export function load({ params }) {
 		work,
 		content: getHomeContent(locale)
 	};
-}
+};

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { previewScene, type FlowPreviewKind } from './flow-preview';
+	import { previewScene, previewSize, type FlowPreviewKind } from './flow-preview';
 
 	let {
 		kind,
@@ -17,8 +17,15 @@
 	let reducedMotion = $state(true);
 	const running = $derived(visible && documentVisible && !reducedMotion && !paused);
 	const scene = $derived(previewScene(kind, narrow));
-	const width = $derived(narrow ? 360 : 640);
-	const height = $derived(narrow ? 480 : 400);
+	let selection = $state<{ kind: FlowPreviewKind; phase: string }>();
+	const phase = $derived(
+		selection?.kind === kind
+			? scene.phases?.find((item) => item.id === selection?.phase)
+			: undefined
+	);
+	const size = $derived(previewSize(kind, narrow));
+	const width = $derived(size.width);
+	const height = $derived(size.height);
 	const left = $derived(narrow ? 42 : 82);
 	const right = $derived(narrow ? 318 : 558);
 
@@ -57,6 +64,22 @@
 	style:--flow-play={running ? 'running' : 'paused'}
 >
 	{#key kind}
+		{#if scene.phases}
+			<div class="flow-phases" role="group" aria-label="도식 단계 선택">
+				<button
+					type="button"
+					aria-pressed={!phase}
+					onclick={() => (selection = { kind, phase: 'all' })}>전체 흐름</button
+				>
+				{#each scene.phases as item (item.id)}
+					<button
+						type="button"
+						aria-pressed={phase?.id === item.id}
+						onclick={() => (selection = { kind, phase: item.id })}>{item.label}</button
+					>
+				{/each}
+			</div>
+		{/if}
 		<div class="flow-preview__scene">
 			<svg
 				viewBox={`0 0 ${width} ${height}`}
@@ -65,6 +88,7 @@
 				aria-describedby={`${instanceId}-description`}
 				class="flow-preview__canvas"
 				class:narrow
+				style:aspect-ratio={`${width} / ${height}`}
 			>
 				<title id={`${instanceId}-title`}>{scene.title}</title>
 				<desc id={`${instanceId}-description`}>{scene.description}</desc>
@@ -119,8 +143,11 @@
 				{:else}
 					<g class="connections">
 						{#each scene.connections as connection, i (connection.path)}
+							{@const selected = !phase || phase.connections.includes(connection.id ?? '')}
 							<path
 								class="connection"
+								class:connection-selected={!!phase && selected}
+								class:muted={!selected}
 								class:dashed={connection.dashed}
 								d={connection.path}
 								marker-end={`url(#${arrowId})`}
@@ -128,6 +155,7 @@
 							/>
 							<path
 								class="signal"
+								class:inactive={!selected}
 								pathLength="100"
 								d={connection.path}
 								style:--signal-delay={`${i * -1.3}s`}
@@ -143,7 +171,10 @@
 						{/each}
 					</g>
 					{#each scene.nodes as node, i (node.id)}
-						<g transform={`translate(${node.x} ${node.y})`}>
+						<g
+							transform={`translate(${node.x} ${node.y})`}
+							class:focused={phase?.nodes.includes(node.id)}
+						>
 							<g class="flow-node" class:accent={node.accent} style:--flow-delay={`${i * 0.08}s`}>
 								{#if node.shape === 'document'}
 									<path
@@ -191,6 +222,12 @@
 				{/if}
 			</svg>
 		</div>
+		{#if scene.phases}
+			<div class="phase-explanation" aria-live="polite" aria-atomic="true">
+				<strong>{phase?.title ?? '단계를 선택해 역할과 전달 경로를 살펴보세요.'}</strong>
+				<p>{phase?.description ?? scene.description}</p>
+			</div>
+		{/if}
 		<figcaption>{scene.caption}</figcaption>
 	{/key}
 </figure>
@@ -210,6 +247,61 @@
 	.flow-preview__scene {
 		animation: scene-enter 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 		animation-play-state: var(--flow-play);
+	}
+
+	.flow-phases {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-bottom: 14px;
+	}
+	.flow-phases button {
+		padding: 7px 10px;
+		min-height: 36px;
+		border: 1px solid var(--flow-line);
+		background: transparent;
+		color: var(--flow-muted);
+		font: inherit;
+		font-size: 12px;
+		cursor: pointer;
+	}
+	.flow-phases button[aria-pressed='true'] {
+		color: var(--flow-ink);
+		border-color: var(--flow-accent);
+	}
+	.flow-phases button:focus-visible {
+		outline: 2px solid var(--flow-accent);
+		outline-offset: 3px;
+	}
+	.phase-explanation {
+		border-left: 2px solid var(--flow-accent);
+		padding-left: 14px;
+		margin: 16px 0 14px;
+	}
+	.phase-explanation strong {
+		font-size: 14px;
+		font-weight: 500;
+	}
+	.phase-explanation p {
+		margin: 7px 0 0;
+		font-size: 13px;
+		line-height: 1.8;
+		color: var(--flow-muted);
+		word-break: keep-all;
+	}
+	.focused .node-shell {
+		stroke: var(--flow-accent);
+		stroke-opacity: 1;
+	}
+	.connection.connection-selected {
+		stroke: var(--flow-accent);
+		stroke-opacity: 0.9;
+	}
+	.connection.muted {
+		stroke-opacity: 0.25;
+	}
+	.signal.inactive {
+		display: none;
 	}
 
 	.flow-preview__canvas {

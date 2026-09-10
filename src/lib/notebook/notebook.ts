@@ -1,10 +1,12 @@
 import type { Locale } from '$lib/portfolio/content';
 import { getStory, storySlugs } from '$lib/notebook/story';
 import { getOpsCatalog, opsArticlePath } from './ops/catalog';
+import type { FlowPreviewKind } from './components/flow-preview';
+import { aiArticles, aiArticlePath, aiReviewedAt } from './ai/catalog';
 
-export type NotebookArea = 'ops' | 'sec';
+export type NotebookArea = 'ops' | 'sec' | 'ai';
 export type NotebookKind = 'concept' | 'reference' | 'experiment';
-export type PreviewKind = 'pipeline' | 'tls' | 'claim' | 'mpc';
+export type PreviewKind = FlowPreviewKind;
 export type NotebookEntry = {
 	id: string;
 	slug: string;
@@ -31,7 +33,7 @@ export type NotebookHome = {
 	comingSoon: boolean;
 	meta: { title: string; description: string };
 	entries: NotebookEntry[];
-	featuredIds: string[];
+	features: { entryId: string; area: NotebookArea; title: string }[];
 };
 export function notebookCanonicalPath(locale: Locale) {
 	return `/${locale}/notebook/` as const;
@@ -56,6 +58,12 @@ const storySummaries = {
 		preview: 'mpc'
 	}
 } as const;
+const aiOpsSlugs = new Set([
+	'12-mlops-mlflow-ray-kserve-knative',
+	'13-reproducible-ml-storage-versioning',
+	'14-gitops-meets-ml-pipeline',
+	'15-rayjob-mlflow-kserve-capstone'
+]);
 export function getNotebookHome(locale: Locale): NotebookHome {
 	const stories: NotebookEntry[] = storySlugs.map((slug) => {
 		const story = getStory(slug);
@@ -83,7 +91,11 @@ export function getNotebookHome(locale: Locale): NotebookHome {
 		title: post.title.replace(/ [—–] /g, ': '),
 		description: post.description,
 		href: opsArticlePath(post.slug),
-		areas: /keycloak|cert-manager|oidc|rbac/i.test(post.slug) ? ['ops', 'sec'] : ['ops'],
+		areas: aiOpsSlugs.has(post.slug)
+			? ['ops', 'ai']
+			: /keycloak|cert-manager|oidc|rbac/i.test(post.slug)
+				? ['ops', 'sec']
+				: ['ops'],
 		kind: 'reference',
 		series: 'MLOps Notes',
 		format: 'article',
@@ -91,7 +103,11 @@ export function getNotebookHome(locale: Locale): NotebookHome {
 		date: post.updated,
 		authorLabel: 'HPE 엔지니어 자료 기반',
 		tags: post.tags,
-		preview: /keycloak|cert-manager/.test(post.slug) ? 'tls' : 'pipeline'
+		preview: aiOpsSlugs.has(post.slug)
+			? 'ml'
+			: /keycloak|cert-manager/.test(post.slug)
+				? 'tls'
+				: 'pipeline'
 	}));
 	return {
 		locale,
@@ -101,7 +117,48 @@ export function getNotebookHome(locale: Locale): NotebookHome {
 			description:
 				'인프라 운영, 배포, TLS와 zkTLS. 자료를 정리하고 시스템의 동작 과정을 살펴보는 홍범의 기술 노트.'
 		},
-		entries: locale === 'ko' ? [...stories, ...operations] : [],
-		featuredIds: ['ops-10-gitlab-harbor-argocd-end-to-end', 'zktls-tls13', 'zktls-balance-claim']
+		entries:
+			locale === 'ko'
+				? [
+						...aiArticles.map(
+							(article): NotebookEntry => ({
+								id: `ai-${article.slug}`,
+								slug: article.slug,
+								title: article.title,
+								description: article.description,
+								href: aiArticlePath(article.slug),
+								areas: article.areas,
+								kind: 'concept',
+								series: 'AI Notes',
+								format: 'article',
+								readingTime: `약 ${article.readingMinutes}분`,
+								date: aiReviewedAt,
+								authorLabel: '홍범',
+								tags: article.tags,
+								preview: 'inference'
+							})
+						),
+						...stories,
+						...operations
+					]
+				: [],
+		features: [
+			{
+				entryId: 'ops-10-gitlab-harbor-argocd-end-to-end',
+				area: 'ops',
+				title: 'Commit에서 Cluster까지'
+			},
+			{ entryId: 'zktls-tls13', area: 'sec', title: 'TLS 1.3의 동작 과정' },
+			{
+				entryId: 'ai-compute-and-orchestration',
+				area: 'ai',
+				title: '추가 계산을 어디에 쓸 것인가'
+			},
+			{
+				entryId: 'ops-12-mlops-mlflow-ray-kserve-knative',
+				area: 'ai',
+				title: '학습에서 모델 서빙까지'
+			}
+		]
 	};
 }

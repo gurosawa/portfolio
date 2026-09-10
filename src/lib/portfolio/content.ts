@@ -142,16 +142,6 @@ const koWorks: WorkItem[] = [
 		tags: ['security', 'systems', 'operations'],
 		destination: 'notebook',
 		cta: '노트 읽기'
-	},
-	{
-		title: 'AI ON-PREMISE',
-		slug: 'local-ai-ops-notes',
-		status: 'running experiment',
-		surface: '외부 API 없이 로컬 환경에 AI 에이전트를 구성하고 운영해본 기록.',
-		inner:
-			'챗봇 하나 붙여보려던 건데, 어느새 네트워크와 모델 서빙을 보고 있다. AI도 결국 인프라였다.',
-		tags: ['local ai', 'vllm', 'llmops', 'infrastructure'],
-		cta: 'Coming soon'
 	}
 ];
 
@@ -178,17 +168,6 @@ const enWorks: WorkItem[] = [
 		tags: ['security', 'systems', 'operations'],
 		destination: 'notebook',
 		cta: 'Open notebook'
-	},
-	{
-		title: 'AI ON-PREMISE',
-		slug: 'local-ai-ops-notes',
-		status: 'running experiment',
-		surface:
-			'Operational notes from building a local AI agent setup without relying on external APIs.',
-		inner:
-			'I tried to connect a chatbot and ended up debugging networking, model serving, and agent permissions. AI was infrastructure all along.',
-		tags: ['local ai', 'vllm', 'llmops', 'infrastructure'],
-		cta: 'Coming soon'
 	}
 ];
 

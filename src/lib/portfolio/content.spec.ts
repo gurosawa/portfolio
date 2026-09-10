@@ -34,7 +34,7 @@ describe('portfolio content model', () => {
 
 		expect(ko.works.map((work) => work.slug)).toEqual(workSlugs);
 		expect(en.works.map((work) => work.slug)).toEqual(workSlugs);
-		expect(workSlugs).toEqual(['soram', 'systems-notebook', 'local-ai-ops-notes']);
+		expect(workSlugs).toEqual(['soram', 'systems-notebook']);
 	});
 
 	it('keeps synthetic terminal copy free of real infrastructure details', () => {
@@ -54,11 +54,11 @@ describe('portfolio content model', () => {
 		expect(serialized).not.toContain('?띾');
 	});
 
-	it('returns localized work placeholders by slug', () => {
-		const work = getWork('en', 'local-ai-ops-notes');
-
-		expect(work?.slug).toBe('local-ai-ops-notes');
-		expect(work?.status).toBe('running experiment');
+	it('consolidates AI into the notebook entry across locales', () => {
+		for (const locale of supportedLocales) {
+			expect(getWork(locale, 'local-ai-ops-notes')).toBeUndefined();
+			expect(getWork(locale, 'systems-notebook')?.destination).toBe('notebook');
+		}
 	});
 
 	it('merges the operations and zkTLS entries into the local Systems Notebook', () => {
