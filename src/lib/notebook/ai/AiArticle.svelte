@@ -16,6 +16,43 @@
 		`https://wonderful-water-044d9f700.7.azurestaticapps.net${aiArticlePath(article.slug)}`
 	);
 	onMount(() => {
+		const entryUrl = location.href;
+		if (!location.hash) return;
+		let disposed = false;
+		let interacted = false;
+		let frame = 0;
+		const markInteraction = () => (interacted = true);
+		const stopWatching = () => {
+			window.removeEventListener('wheel', markInteraction);
+			window.removeEventListener('pointerdown', markInteraction);
+			window.removeEventListener('keydown', markInteraction);
+		};
+		window.addEventListener('wheel', markInteraction, { passive: true });
+		window.addEventListener('pointerdown', markInteraction, { passive: true });
+		window.addEventListener('keydown', markInteraction);
+		// Fonts and responsive diagrams can change the native fragment's initial position.
+		void document.fonts.ready.then(() => {
+			if (disposed) return;
+			frame = requestAnimationFrame(() => {
+				frame = requestAnimationFrame(() => {
+					stopWatching();
+					if (disposed || interacted || location.href !== entryUrl) return;
+					try {
+						const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+						if (target && root.contains(target)) target.scrollIntoView({ behavior: 'instant' });
+					} catch {
+						/* An invalid fragment must not interrupt reading. */
+					}
+				});
+			});
+		});
+		return () => {
+			disposed = true;
+			cancelAnimationFrame(frame);
+			stopWatching();
+		};
+	});
+	onMount(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
 				const visible = entries.filter((entry) => entry.isIntersecting);

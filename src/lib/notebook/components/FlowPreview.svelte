@@ -26,6 +26,8 @@
 	const size = $derived(previewSize(kind, narrow));
 	const width = $derived(size.width);
 	const height = $derived(size.height);
+	const wideSize = $derived(previewSize(kind, false));
+	const narrowSize = $derived(previewSize(kind, true));
 	const left = $derived(narrow ? 42 : 82);
 	const right = $derived(narrow ? 318 : 558);
 
@@ -62,6 +64,8 @@
 	data-flow={kind}
 	data-motion={running ? 'running' : 'paused'}
 	style:--flow-play={running ? 'running' : 'paused'}
+	style:--flow-wide-aspect={`${wideSize.width} / ${wideSize.height}`}
+	style:--flow-narrow-aspect={`${narrowSize.width} / ${narrowSize.height}`}
 >
 	{#key kind}
 		{#if scene.phases}
@@ -88,7 +92,6 @@
 				aria-describedby={`${instanceId}-description`}
 				class="flow-preview__canvas"
 				class:narrow
-				style:aspect-ratio={`${width} / ${height}`}
 			>
 				<title id={`${instanceId}-title`}>{scene.title}</title>
 				<desc id={`${instanceId}-description`}>{scene.description}</desc>
@@ -234,6 +237,7 @@
 
 <style>
 	.flow-preview {
+		container-type: inline-size;
 		--flow-ink: var(--nb-text, #eeeae2);
 		--flow-muted: var(--nb-muted, #aaa9a2);
 		--flow-accent: var(--nb-accent, #ff5500);
@@ -308,12 +312,15 @@
 		display: block;
 		width: 100%;
 		height: auto;
-		aspect-ratio: 640 / 400;
+		aspect-ratio: var(--flow-wide-aspect);
 		overflow: visible;
 	}
 
-	.flow-preview__canvas.narrow {
-		aspect-ratio: 360 / 480;
+	/* Reserve the responsive height before hydration to keep article anchors stable. */
+	@container (width < 440px) {
+		.flow-preview__canvas {
+			aspect-ratio: var(--flow-narrow-aspect);
+		}
 	}
 
 	.flow-node,
